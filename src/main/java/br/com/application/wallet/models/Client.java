@@ -1,5 +1,8 @@
 package br.com.application.wallet.models;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,7 +21,10 @@ import java.util.List;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(of = {"id", "cpf"})
 @Entity
 @Table(name = "CLIENT")
 public class Client implements Serializable {
