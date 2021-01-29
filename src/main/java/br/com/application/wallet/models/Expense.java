@@ -8,6 +8,8 @@ import lombok.Setter;
 
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -28,7 +30,11 @@ public class Expense implements Serializable {
     private Long id;
     private String description;
     private BigDecimal value;
+
+    @Enumerated(EnumType.STRING)
     private ExpenseState expenseState;
+
+    @Enumerated(EnumType.STRING)
     private ExpenseType expenseType;
 
     public Expense(String description, BigDecimal value) {
