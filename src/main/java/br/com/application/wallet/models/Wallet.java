@@ -1,5 +1,7 @@
 package br.com.application.wallet.models;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,10 +15,13 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "WALLET")
@@ -36,5 +41,12 @@ public class Wallet implements Serializable {
     public Wallet(String description, BigDecimal balance) {
         this.description = description;
         this.balance = balance;
+        this.expenses = new ArrayList<>();
+    }
+
+    public Wallet(String description, BigDecimal balance, List<Expense> expenses) {
+        this.description = description;
+        this.balance = balance;
+        this.expenses = expenses;
     }
 }

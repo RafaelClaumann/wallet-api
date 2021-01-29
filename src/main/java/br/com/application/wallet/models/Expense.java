@@ -2,6 +2,8 @@ package br.com.application.wallet.models;
 
 import br.com.application.wallet.models.enums.ExpenseState;
 import br.com.application.wallet.models.enums.ExpenseType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +21,8 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "EXPENSE")
