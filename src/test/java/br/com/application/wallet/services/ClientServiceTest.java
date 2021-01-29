@@ -13,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 public class ClientServiceTest {
@@ -31,12 +33,29 @@ public class ClientServiceTest {
     @Test
     void returnClientByIdTest() {
         long clientId = 1L;
-        Client client = Client.builder().id(clientId).name("Rafael Claumann").cpf("000000000-00").build();
+        Client client = Client.builder().id(clientId).name("Rafael Claumann").build();
         given(clientRepository.findById(clientId)).willReturn(Optional.of(client));
 
-        Client foundClient = clientService.findById(1L);
+        Client foundClient = clientService.findById(clientId);
 
         verify(clientRepository).findById(clientId);
         assertThat(foundClient).isEqualTo(client);
+    }
+
+    @Test
+    void returnAllClientsTest() {
+        Client client1 = Client.builder().id(1L).name("First Client").build();
+        Client client2 = Client.builder().id(2L).name("Second Client").build();
+        List<Client> expectedClients = Arrays.asList(client1, client2);
+        given(clientRepository.findAll()).willReturn(expectedClients);
+
+        List<Client> foundClients = clientService.findAll();
+
+        final Long expectedId = expectedClients.get(1).getId();
+        final Long foundId = foundClients.get(1).getId();
+
+        verify(clientRepository).findAll();
+        assertThat(expectedId).isEqualTo(foundId);
+        assertThat(expectedClients).isEqualTo(foundClients);
     }
 }
