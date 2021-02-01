@@ -14,6 +14,7 @@ import static org.mockito.Mockito.doThrow;
 
 import br.com.application.wallet.models.Client;
 import br.com.application.wallet.repositories.ClientRepository;
+import org.hibernate.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -30,7 +31,7 @@ import java.util.Optional;
 public class ClientServiceTest {
 
 	@InjectMocks
-	private ClientService clientService;
+	private br.com.application.wallet.services.ClientService clientService;
 
 	@Mock
 	private ClientRepository clientRepository;
@@ -50,6 +51,15 @@ public class ClientServiceTest {
 
 		verify(clientRepository).findById(clientId);
 		assertThat(foundClient).isEqualTo(client);
+	}
+
+	@Test
+	void shouldThrowExceptionWhenClientNotFoundTest() {
+		given(clientRepository.findById(any(Long.class))).willReturn(Optional.empty());
+
+		assertThrows(ObjectNotFoundException.class, () -> {
+			clientService.findClientById(1L);
+		});
 	}
 
 	@Test
