@@ -4,6 +4,7 @@ import br.com.application.wallet.models.Expense;
 import br.com.application.wallet.models.Wallet;
 import br.com.application.wallet.models.enums.ExpenseState;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
@@ -30,11 +31,9 @@ import java.util.Optional;
 
 public class ClientServiceTest {
 
-	@InjectMocks
-	private br.com.application.wallet.services.ClientService clientService;
+	@InjectMocks private br.com.application.wallet.services.ClientService clientService;
 
-	@Mock
-	private ClientRepository clientRepository;
+	@Mock private ClientRepository clientRepository;
 
 	@BeforeEach
 	void setup() {
@@ -133,4 +132,12 @@ public class ClientServiceTest {
 
 		assertThat(client).isEqualTo(savedClient);
 	}
+
+	@Test
+	void shouldThrowExceptionWhenClientIdIsNullTest() {
+		given(clientRepository.findById(any(Long.class))).willReturn(Optional.empty());
+
+		assertThrows(IllegalArgumentException.class, () -> {  clientService.deleteClient(null);  });
+	}
+
 }
