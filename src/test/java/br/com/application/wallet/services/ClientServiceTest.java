@@ -29,9 +29,11 @@ import java.util.Optional;
 
 public class ClientServiceTest {
 
-	@InjectMocks private ClientService clientService;
+	@InjectMocks
+	private ClientService clientService;
 
-	@Mock private ClientRepository clientRepository;
+	@Mock
+	private ClientRepository clientRepository;
 
 	@BeforeEach
 	void setup() {
@@ -44,7 +46,7 @@ public class ClientServiceTest {
 		Client client = Client.builder().id(clientId).name("Rafael Claumann").build();
 		given(clientRepository.findById(clientId)).willReturn(Optional.of(client));
 
-		Client foundClient = clientService.findById(clientId);
+		Client foundClient = clientService.findClientById(clientId);
 
 		verify(clientRepository).findById(clientId);
 		assertThat(foundClient).isEqualTo(client);
@@ -57,7 +59,7 @@ public class ClientServiceTest {
 		List<Client> expectedClients = Arrays.asList(client1, client2);
 		given(clientRepository.findAll()).willReturn(expectedClients);
 
-		List<Client> foundClients = clientService.findAll();
+		List<Client> foundClients = clientService.findAllClients();
 
 		final Long expectedId = expectedClients.get(1).getId();
 		final Long foundId = foundClients.get(1).getId();
@@ -74,9 +76,9 @@ public class ClientServiceTest {
 		given(clientRepository.findById(1L)).willReturn(Optional.of(client));
 		doNothing().when(clientRepository).deleteById(1L);
 
-		boolean b = clientService.deleteClient(1L);
+		boolean isDeleted = clientService.deleteClient(1L);
 
-		assertThat(b).isTrue();
+		assertThat(isDeleted).isTrue();
 	}
 
 	@Test
@@ -95,7 +97,30 @@ public class ClientServiceTest {
 		});
 		String expectedMessage = "Cliente com id {1} possui pendencias na carteira!";
 		String exceptionMessage = exception.getMessage();
-		
+
 		assertThat(expectedMessage).isEqualTo(exceptionMessage);
+	}
+
+	@Test
+	void changeClientPropertiesTest() {
+		Client client0 = Client.builder().id(1L).name("First Client").cpf("000.000.000-00").build();
+		Client client2 = Client.builder().id(1L).name("Changed Client").cpf("222.222.222-22").build();
+		given(clientRepository.save(any(Client.class))).willReturn(client0, client2);
+
+		Client savedClient = clientService.saveClient(client0);
+		Client changedClient = clientService.changeClient(client2);
+
+		assertThat(client0).isEqualTo(savedClient);
+		assertThat(client2).isEqualTo(changedClient);
+	}
+
+	@Test
+	void clientSaveTest() {
+		Client client = Client.builder().id(1L).name("First Client").cpf("000.000.000-00").build();
+		given(clientRepository.save(any(Client.class))).willReturn(client);
+
+		Client savedClient = clientService.saveClient(client);
+
+		assertThat(client).isEqualTo(savedClient);
 	}
 }
