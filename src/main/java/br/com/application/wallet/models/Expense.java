@@ -2,12 +2,7 @@ package br.com.application.wallet.models;
 
 import br.com.application.wallet.models.enums.ExpenseState;
 import br.com.application.wallet.models.enums.ExpenseType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -22,6 +17,8 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Builder
+@ToString
+@EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
