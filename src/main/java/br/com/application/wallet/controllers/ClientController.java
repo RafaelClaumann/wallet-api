@@ -1,5 +1,8 @@
 package br.com.application.wallet.controllers;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,9 +22,15 @@ public class ClientController {
 	private ClientService clientService;
 
 	@GetMapping("/{id_client}")
-	private ResponseEntity<ClientDTO> findClientById(@PathVariable("id_client") long idClient) {
+	public ResponseEntity<ClientDTO> findClientById(@PathVariable("id_client") long idClient) {
 		Client foundClient = clientService.findClientById(idClient);
 		return ResponseEntity.ok().body(new ClientDTO(foundClient));
 	}
 	
+	@GetMapping
+	public ResponseEntity<List<ClientDTO>> findAllClients() {
+		List<Client> findAllClients = clientService.findAllClients();
+		List<ClientDTO> dtos = findAllClients.stream().map(client -> new ClientDTO(client)).collect(Collectors.toList());
+		return ResponseEntity.ok().body(dtos);
+	}
 }
