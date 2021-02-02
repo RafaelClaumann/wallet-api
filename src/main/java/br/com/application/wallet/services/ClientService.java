@@ -18,7 +18,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ClientService {
 
-	@Autowired private ClientRepository clientRepository;
+	@Autowired
+	private ClientRepository clientRepository;
 
 	public Client findClientById(final Long id) {
 		Optional<Client> client = clientRepository.findById(id);
