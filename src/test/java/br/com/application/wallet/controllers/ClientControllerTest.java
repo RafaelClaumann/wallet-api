@@ -2,6 +2,9 @@ package br.com.application.wallet.controllers;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -18,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -34,11 +38,9 @@ import br.com.application.wallet.services.ClientService;
 @WebMvcTest(ClientController.class)
 class ClientControllerTest {
 
-	@MockBean
-	private ClientService clientService;
+	@MockBean private ClientService clientService;
 
-	@Autowired
-	private MockMvc mockMvc;
+	@Autowired private MockMvc mockMvc;
 
 	private JacksonTester<ClientDTO> json;
 	private JacksonTester<List<ClientDTO>> jsonList;
@@ -88,14 +90,14 @@ class ClientControllerTest {
 
 	@Test
 	void shouldPostNewClientTest() throws Exception {
-		Client client = Client.builder().name("Client").cpf("000000000-00").telephoneNumber("48 0 0000-0000").build();
+		Client client = Client.builder().name("Client").cpf("531.521.400-10").telephoneNumber("48 0 0000-0000").build();
 		ClientDTO clientDTO = new ClientDTO(client);
 
 		given(clientService.saveClient(client)).willReturn(client);
 
-		MockHttpServletResponse response = mockMvc.perform(post("/wallet/v1/clients")
-				.contentType(MediaType.APPLICATION_JSON).content(json.write(clientDTO).getJson())).andReturn()
-				.getResponse();
+		MockHttpServletResponse response = mockMvc.perform(
+				post("/wallet/v1/clients").contentType(MediaType.APPLICATION_JSON)
+						.content(json.write(clientDTO).getJson())).andReturn().getResponse();
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
 		assertThat(response.getContentAsString()).isEqualTo(json.write(clientDTO).getJson());

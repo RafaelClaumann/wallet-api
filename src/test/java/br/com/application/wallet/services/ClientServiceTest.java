@@ -1,5 +1,7 @@
 package br.com.application.wallet.services;
 
+import br.com.application.wallet.handler.exceptions.ClientNotFoundException;
+import br.com.application.wallet.handler.exceptions.ClientOpenedExpensesException;
 import br.com.application.wallet.models.Expense;
 import br.com.application.wallet.models.Wallet;
 import br.com.application.wallet.models.enums.ExpenseState;
@@ -55,7 +57,7 @@ public class ClientServiceTest {
 	void shouldThrowExceptionWhenClientNotFoundTest() {
 		given(clientRepository.findById(any(Long.class))).willReturn(Optional.empty());
 
-		assertThrows(ObjectNotFoundException.class, () -> {
+		assertThrows(ClientNotFoundException.class, () -> {
 			clientService.findClientById(1L);
 		});
 	}
@@ -100,7 +102,7 @@ public class ClientServiceTest {
 
 		given(clientRepository.findById(1L)).willReturn(Optional.of(client));
 
-		Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+		Exception exception = assertThrows(ClientOpenedExpensesException.class, () -> {
 			clientService.deleteClient(1L);
 		});
 		String expectedMessage = "Cliente com id {1} possui pendencias na carteira!";
