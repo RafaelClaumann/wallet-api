@@ -59,12 +59,13 @@ public class ClientService {
 	 */
 	private boolean checkClientOpenedExpensesBeforeDelete(final Long id) {
 		Client client = this.findClientById(id);
-		if (client.getWallets().isEmpty()) {
+		System.out.println("ERRO" + client);
+		if (Objects.isNull(client.getWallets()) || client.getWallets().isEmpty()) {
 			return false;
 		}
 		List<Boolean> collect = client.getWallets().stream().map(this::checkWalletOpenedExpenses)
 				.collect(Collectors.toUnmodifiableList());
-		;
+
 		log.info("ClientId {}, Wallets {}", id, client.getWallets());
 		return collect.stream().anyMatch(bool -> true);
 	}

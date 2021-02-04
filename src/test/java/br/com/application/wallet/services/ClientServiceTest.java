@@ -4,8 +4,7 @@ import br.com.application.wallet.models.Expense;
 import br.com.application.wallet.models.Wallet;
 import br.com.application.wallet.models.enums.ExpenseState;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -138,6 +137,17 @@ public class ClientServiceTest {
 		given(clientRepository.findById(any(Long.class))).willReturn(Optional.empty());
 
 		assertThrows(IllegalArgumentException.class, () -> {  clientService.deleteClient(null);  });
+	}
+
+	@Test
+	void shouldDeleteClientWhenWalletIsNullTest() {
+		Client client = Client.builder().id(1L).name("First Client").cpf("000.000.000-00").build();
+
+		given(clientRepository.findById(1L)).willReturn(Optional.of(client));
+
+		boolean result = clientService.deleteClient(1L);
+
+		assertTrue(result);
 	}
 
 }
