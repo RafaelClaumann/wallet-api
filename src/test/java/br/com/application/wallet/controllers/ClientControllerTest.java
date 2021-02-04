@@ -8,12 +8,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import br.com.application.wallet.handler.exceptions.ClientOpenedExpensesException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -101,5 +103,26 @@ class ClientControllerTest {
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
 		assertThat(response.getContentAsString()).isEqualTo(json.write(clientDTO).getJson());
+	}
+
+	@Test
+	void deleteClientShouldReturnHttpNoContentTest() throws Exception {
+		given(clientService.deleteClient(any(Long.class))).willReturn(true);
+
+		MockHttpServletResponse response = mockMvc.perform(delete("/wallet/v1/clients/{id_client}", "1")).andReturn()
+				.getResponse();
+
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
+		assertThat(response.getContentAsString()).isEmpty();
+	}
+
+	@Test
+	void deleteClientShouldReturnHttpBadRequestTest() throws Exception {
+		given(clientService.deleteClient(any(Long.class))).willThrow(ClientOpenedExpensesException.class);
+
+		final MockHttpServletResponse response = mockMvc.perform(delete("/wallet/v1/clients/{id_client}", "1"))
+				.andReturn().getResponse();
+
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
 	}
 }

@@ -8,8 +8,8 @@ import br.com.application.wallet.models.Wallet;
 import br.com.application.wallet.models.enums.ExpenseState;
 import br.com.application.wallet.repositories.ClientRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,8 +21,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ClientService {
 
-	@Autowired
-	private ClientRepository clientRepository;
+	@Autowired private ClientRepository clientRepository;
 
 	public Client findClientById(final Long id) {
 		Optional<Client> client = clientRepository.findById(id);
@@ -53,14 +52,13 @@ public class ClientService {
 	}
 
 	public Client saveClient(final Client client) {
-		if(verifyCpfExistence(client.getCpf()))
+		try {
+			log.info("Salvando client, nome: {}, cpf: {}", client.getName(), client.getCpf());
+			return clientRepository.save(client);
+		} catch (DataIntegrityViolationException exception) {
+			log.info("CPF {} já cadastrado no sistema", client.getCpf());
 			throw new DuplicateDocumentException("CPF { " + client.getCpf() + " } já cadastrado");
-		log.info("Salvando client. id: {}, nome: {}, cpf: {}", client.getId(), client.getName(), client.getCpf());
-		return clientRepository.save(client);
-	}
-
-	public boolean verifyCpfExistence(String cpf) {
-		return clientRepository.findClientByCpf(cpf).isPresent();
+		}
 	}
 
 	/**

@@ -96,6 +96,8 @@
                 <configuration>
                 	<excludes>
                 		<exclude>**/dto/**</exclude>
+                        <exclude>**/enums/**</exclude>
+                        <exclude>**/handler/**</exclude>
                 	</excludes>
                 </configuration>
                 

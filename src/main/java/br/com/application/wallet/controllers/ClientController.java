@@ -45,4 +45,11 @@ public class ClientController {
 
 		return ResponseEntity.created(resourceLocation).body(new ClientDTO(client));
 	}
+
+	@DeleteMapping({"/{id_client}"})
+	public ResponseEntity deleteClient(@PathVariable("id_client") Long id ) {
+		clientService.deleteClient(id);
+		return ResponseEntity.noContent().build();
+	}
+
 }
