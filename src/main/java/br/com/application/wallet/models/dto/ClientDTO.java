@@ -1,6 +1,7 @@
 package br.com.application.wallet.models.dto;
 
 import br.com.application.wallet.models.Client;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,8 +11,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ClientDTO {
 
+	@JsonProperty("client_name")
 	private String name;
+
+	@JsonProperty("client_cpf")
 	private String cpf;
+
+	@JsonProperty("client_telephone")
 	private String telephoneNumber;
 
 	public ClientDTO(Client client) {

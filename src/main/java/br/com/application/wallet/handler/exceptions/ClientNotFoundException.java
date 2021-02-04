@@ -1,9 +1,10 @@
 package br.com.application.wallet.handler.exceptions;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
+/**
+ * Essa exceção é lançada quando a busca por um cliente retorna Optional.empty() ou null.
+ */
 public class ClientNotFoundException extends RuntimeException {
+	private static final long serialVersionUID = 8045587788801138699L;
 
 	public ClientNotFoundException(String message) {
 		super(message);

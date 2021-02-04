@@ -1,5 +1,6 @@
 package br.com.application.wallet.handler.messages;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
@@ -10,6 +11,7 @@ import java.util.List;
 @Getter
 public class ValidationError extends ApiError {
 
+	@JsonProperty("field_errors")
 	private final List<FieldMessage> errors = new ArrayList<>();
 
 	public ValidationError(String exceptionClass, HttpStatus status, String message, LocalDateTime localDateTime) {

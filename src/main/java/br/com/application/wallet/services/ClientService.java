@@ -2,6 +2,7 @@ package br.com.application.wallet.services;
 
 import br.com.application.wallet.handler.exceptions.ClientNotFoundException;
 import br.com.application.wallet.handler.exceptions.ClientOpenedExpensesException;
+import br.com.application.wallet.handler.exceptions.DuplicateDocumentException;
 import br.com.application.wallet.models.Client;
 import br.com.application.wallet.models.Wallet;
 import br.com.application.wallet.models.enums.ExpenseState;
@@ -52,8 +53,14 @@ public class ClientService {
 	}
 
 	public Client saveClient(final Client client) {
+		if(verifyCpfExistence(client.getCpf()))
+			throw new DuplicateDocumentException("CPF { " + client.getCpf() + " } já cadastrado");
 		log.info("Salvando client. id: {}, nome: {}, cpf: {}", client.getId(), client.getName(), client.getCpf());
 		return clientRepository.save(client);
+	}
+
+	public boolean verifyCpfExistence(String cpf) {
+		return clientRepository.findClientByCpf(cpf).isPresent();
 	}
 
 	/**
