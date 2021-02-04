@@ -1,5 +1,7 @@
 package br.com.application.wallet.services;
 
+import br.com.application.wallet.handler.exceptions.ClientNotFoundException;
+import br.com.application.wallet.handler.exceptions.ClientOpenedExpensesException;
 import br.com.application.wallet.models.Client;
 import br.com.application.wallet.models.Wallet;
 import br.com.application.wallet.models.enums.ExpenseState;
@@ -23,7 +25,8 @@ public class ClientService {
 
 	public Client findClientById(final Long id) {
 		Optional<Client> client = clientRepository.findById(id);
-		return client.orElseThrow(() -> new ObjectNotFoundException("Cliente não encontrado, id: " + id, null));
+		log.info("Buscando cliente com id {}.", id);
+		return client.orElseThrow(() -> new ClientNotFoundException("Cliente não encontrado, id: " + id));
 	}
 
 	public List<Client> findAllClients() {
@@ -37,7 +40,7 @@ public class ClientService {
 		}
 		if (checkClientOpenedExpensesBeforeDelete(id)) {
 			log.info("Cliente com id {} não pode ser deletado.", id);
-			throw new IllegalArgumentException("Cliente com id {" + id + "} possui pendencias na carteira!");
+			throw new ClientOpenedExpensesException("Cliente com id {" + id + "} possui pendencias na carteira!");
 		}
 		log.info("Deletando cliente com id {}", id);
 		clientRepository.deleteById(id);

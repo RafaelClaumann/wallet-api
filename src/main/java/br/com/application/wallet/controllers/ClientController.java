@@ -37,7 +37,7 @@ public class ClientController {
 	}
 
 	@PostMapping
-	public ResponseEntity<ClientDTO> saveClient(@RequestBody ClientForm clientForm, UriComponentsBuilder uriBuilder) {
+	public ResponseEntity<ClientDTO> saveClient(@Valid @RequestBody ClientForm clientForm, UriComponentsBuilder uriBuilder) {
 		Client client = clientForm.convertFormToClient(clientForm);
 		clientService.saveClient(client);
 
