@@ -100,5 +100,4 @@ class ClientControllerTest {
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
 		assertThat(response.getContentAsString()).isEqualTo(json.write(clientDTO).getJson());
 	}
-
 }
