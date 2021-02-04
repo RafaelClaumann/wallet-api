@@ -48,10 +48,20 @@ public class ClientService {
 	}
 
 	public Client changeClient(final Client client) {
+		if (Objects.isNull(client) || Objects.isNull(client.getName()) || Objects.isNull(client.getCpf()) || Objects
+				.isNull(client.getTelephoneNumber())) {
+			throw new IllegalArgumentException("Cliente inválido");
+		}
+
 		return clientRepository.save(client);
 	}
 
 	public Client saveClient(final Client client) {
+		if (Objects.isNull(client) || Objects.isNull(client.getName()) || Objects.isNull(client.getCpf()) || Objects
+				.isNull(client.getTelephoneNumber())) {
+			throw new IllegalArgumentException("Cliente inválido");
+		}
+
 		try {
 			log.info("Salvando client, nome: {}, cpf: {}", client.getName(), client.getCpf());
 			return clientRepository.save(client);
@@ -67,7 +77,6 @@ public class ClientService {
 	 */
 	private boolean checkClientOpenedExpensesBeforeDelete(final Long id) {
 		Client client = this.findClientById(id);
-		System.out.println("ERRO" + client);
 		if (Objects.isNull(client.getWallets()) || client.getWallets().isEmpty()) {
 			return false;
 		}
@@ -83,6 +92,8 @@ public class ClientService {
 	 * @return true se o wallet possuir pelo menos uma despesa em aberto(OPEN).
 	 */
 	private boolean checkWalletOpenedExpenses(final Wallet wallet) {
+		if(wallet.getExpenses().isEmpty())
+			return false;
 		return wallet.getExpenses().stream().anyMatch(expense -> expense.getExpenseState().equals(ExpenseState.OPEN));
 	}
 }

@@ -2,10 +2,12 @@ package br.com.application.wallet.services;
 
 import br.com.application.wallet.handler.exceptions.ClientNotFoundException;
 import br.com.application.wallet.handler.exceptions.ClientOpenedExpensesException;
+import br.com.application.wallet.handler.exceptions.DuplicateDocumentException;
 import br.com.application.wallet.models.Expense;
 import br.com.application.wallet.models.Wallet;
 import br.com.application.wallet.models.enums.ExpenseState;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -150,6 +153,20 @@ public class ClientServiceTest {
 		boolean result = clientService.deleteClient(1L);
 
 		assertTrue(result);
+	}
+
+	@Test
+	void shouldThrowExceptionWhenSaveClientsWithSameCpfTest() {
+		Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10").build();
+		given(clientRepository.save(client)).willThrow(DataIntegrityViolationException.class);
+
+		DuplicateDocumentException exception = assertThrows(DuplicateDocumentException.class,
+				() -> clientService.saveClient(client));
+
+		String expectedMessage = "CPF { 531.521.400-10 } já cadastrado";
+		String exceptionMessage = exception.getMessage();
+
+		assertThat(expectedMessage).isEqualTo(exceptionMessage);
 	}
 
 }
