@@ -83,8 +83,8 @@ public class ClientService {
 		List<Boolean> collect = client.getWallets().stream().map(this::checkWalletOpenedExpenses)
 				.collect(Collectors.toUnmodifiableList());
 
-		log.info("ClientId {}, Wallets {}", id, client.getWallets());
-		return collect.stream().anyMatch(bool -> true);
+		log.info("ClientId {{}}, Wallets {}", id, client.getWallets());
+		return collect.stream().anyMatch(bool -> bool.equals(Boolean.TRUE));
 	}
 
 	/**
@@ -92,8 +92,13 @@ public class ClientService {
 	 * @return true se o wallet possuir pelo menos uma despesa em aberto(OPEN).
 	 */
 	private boolean checkWalletOpenedExpenses(final Wallet wallet) {
-		if(wallet.getExpenses().isEmpty())
+		log.info("Verificando se carteira com id {{}} possui despesas em aberto.", wallet.getId());
+		if (Objects.isNull(wallet.getExpenses()) || wallet.getExpenses().isEmpty())
 			return false;
-		return wallet.getExpenses().stream().anyMatch(expense -> expense.getExpenseState().equals(ExpenseState.OPEN));
+
+		final boolean hasOpenedExpenses = wallet.getExpenses().stream()
+				.anyMatch(expense -> expense.getExpenseState().equals(ExpenseState.OPEN));
+		log.info("Carteira com id {{}} possui despesas em aberto? {{}}", wallet.getId(), hasOpenedExpenses);
+		return hasOpenedExpenses;
 	}
 }
