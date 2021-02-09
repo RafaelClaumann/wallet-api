@@ -1,20 +1,18 @@
 package br.com.application.wallet.controllers;
 
-import java.net.URI;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.validation.Valid;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import br.com.application.wallet.models.Client;
 import br.com.application.wallet.models.dto.ClientDTO;
 import br.com.application.wallet.models.dto.ClientForm;
 import br.com.application.wallet.services.ClientService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import javax.validation.Valid;
+import java.net.URI;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/wallet/v1/clients")
@@ -24,7 +22,7 @@ public class ClientController {
 	private ClientService clientService;
 
 	@GetMapping("/{id_client}")
-	public ResponseEntity<ClientDTO> findClientById(@PathVariable("id_client") long idClient) {
+	public ResponseEntity<ClientDTO> findClientById(@PathVariable("id_client") final Long idClient) {
 		Client foundClient = clientService.findClientById(idClient);
 		return ResponseEntity.ok().body(new ClientDTO(foundClient));
 	}
@@ -37,7 +35,8 @@ public class ClientController {
 	}
 
 	@PostMapping
-	public ResponseEntity<ClientDTO> saveClient(@Valid @RequestBody ClientForm clientForm, UriComponentsBuilder uriBuilder) {
+	public ResponseEntity<ClientDTO> saveClient(@Valid @RequestBody final ClientForm clientForm,
+			final UriComponentsBuilder uriBuilder) {
 		Client client = clientForm.convertFormToClient(clientForm);
 		clientService.saveClient(client);
 
@@ -46,8 +45,8 @@ public class ClientController {
 		return ResponseEntity.created(resourceLocation).body(new ClientDTO(client));
 	}
 
-	@DeleteMapping({"/{id_client}"})
-	public ResponseEntity deleteClient(@PathVariable("id_client") Long id ) {
+	@DeleteMapping("/{id_client}")
+	public ResponseEntity deleteClient(@PathVariable("id_client") final Long id) {
 		clientService.deleteClient(id);
 		return ResponseEntity.noContent().build();
 	}
