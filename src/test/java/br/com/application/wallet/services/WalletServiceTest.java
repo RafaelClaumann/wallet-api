@@ -49,7 +49,7 @@ public class WalletServiceTest {
 
 	@Test
 	void shouldThrowAnExceptionWhenWalletNotFoundByIdTest() {
-		given(walletRepository.findById(any(Long.class))).willThrow(ObjectNotFoundException.class);
+		given(walletRepository.findById(any(Long.class))).willReturn(Optional.empty());
 
 		assertThrows(ObjectNotFoundException.class, () -> walletService.findWalletById(1L));
 	}
@@ -68,11 +68,40 @@ public class WalletServiceTest {
 	}
 
 	@Test
-	void shoudlReturnAnEmptyListOfWalletsTest() {
+	void shouldReturnAnEmptyListOfWalletsTest() {
 		given(walletRepository.findAll()).willReturn(Collections.emptyList());
 
 		final List<Wallet> allWallets = walletService.findAllWallets();
 
 		assertThat(allWallets).isEmpty();
 	}
+
+	@Test
+	void shouldSaveAWalletTest() {
+		Wallet wallet = Wallet.builder().id(1L).description("Carteira").balance(BigDecimal.TEN)
+				.expenses(Collections.emptyList()).build();
+
+		given(walletRepository.save(any(Wallet.class))).willReturn(wallet);
+
+		final Wallet savedWallet = walletService.saveWallet(wallet);
+
+		assertThat(wallet).isEqualTo(savedWallet);
+	}
+
+	@Test
+	void shouldThrowExceptionWhenTryToSaveNullWalletTest() {
+		given(walletRepository.save(null)).willThrow(IllegalArgumentException.class);
+
+		assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(null));
+	}
+
+	@Test
+	void shouldThrowExceptionWhenSaveWalletWithoutDescriptionTest() {
+		Wallet wallet = new Wallet();
+
+		given(walletRepository.save(wallet)).willThrow(IllegalArgumentException.class);
+
+		assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(wallet));
+	}
+
 }

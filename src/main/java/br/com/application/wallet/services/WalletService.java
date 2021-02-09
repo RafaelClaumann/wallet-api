@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -29,5 +30,12 @@ public class WalletService {
 	public List<Wallet> findAllWallets() {
 		log.info("Listando as carteiras cadastradas.");
 		return walletRepository.findAll();
+	}
+
+	public Wallet saveWallet(Wallet wallet) {
+		if(Objects.isNull(wallet) || Objects.isNull(wallet.getDescription()))
+			throw new IllegalArgumentException("Carteira inválida");
+		log.info("Salvando carteira, descrição: {}, saldo: {}.", wallet.getDescription(), wallet.getBalance());
+		return walletRepository.save(wallet);
 	}
 }
