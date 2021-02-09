@@ -36,6 +36,12 @@ public class Wallet implements Serializable {
     @JoinColumn(name = "wallet_id")
     List<Expense> expenses;
 
+    public Wallet(String description) {
+        this.description = description;
+        this.balance = BigDecimal.ZERO;
+        this.expenses = new ArrayList<>();
+    }
+
     public Wallet(String description, BigDecimal balance) {
         this.description = description;
         this.balance = balance;

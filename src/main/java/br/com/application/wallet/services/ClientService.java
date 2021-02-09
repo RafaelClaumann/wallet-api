@@ -24,8 +24,8 @@ public class ClientService {
 	@Autowired private ClientRepository clientRepository;
 
 	public Client findClientById(final Long id) {
-		Optional<Client> client = clientRepository.findById(id);
 		log.info("Buscando cliente com id {}.", id);
+		Optional<Client> client = clientRepository.findById(id);
 		return client.orElseThrow(() -> new ClientNotFoundException("Cliente não encontrado, id: " + id));
 	}
 
