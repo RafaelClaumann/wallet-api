@@ -1,5 +1,6 @@
 package br.com.application.wallet.services;
 
+import br.com.application.wallet.models.Client;
 import br.com.application.wallet.models.Wallet;
 import br.com.application.wallet.repositories.WalletRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +8,7 @@ import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,10 +34,22 @@ public class WalletService {
 		return walletRepository.findAll();
 	}
 
-	public Wallet saveWallet(Wallet wallet) {
+	public Wallet saveWallet(final Long clientId, final Wallet wallet) {
 		if(Objects.isNull(wallet) || Objects.isNull(wallet.getDescription()))
 			throw new IllegalArgumentException("Carteira inválida");
-		log.info("Salvando carteira, descrição: {}, saldo: {}.", wallet.getDescription(), wallet.getBalance());
+
+		if(Objects.isNull(clientId))
+			throw new IllegalArgumentException("Id inválido");
+
+		log.info("Buscando cliente com id {{}}", clientId);
+		final Client client = clientService.findClientById(clientId);
+
+		if(Objects.isNull(client.getWallets()))
+			client.setWallets(new ArrayList<>());
+		client.getWallets().add(wallet);
+
+		log.info("Adicionando nova carteira para o cliente com id: {{}}, nome: {{}}", client.getId(), client.getName());
+		log.info("Salvando carteira, descrição: {{}}, saldo: {{}}.", wallet.getDescription(), wallet.getBalance());
 		return walletRepository.save(wallet);
 	}
 }

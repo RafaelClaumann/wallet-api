@@ -5,7 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -31,7 +31,7 @@ public class Client implements Serializable {
 
 	@OneToMany
 	@JoinColumn(name = "client_id")
-	private List<Wallet> wallets;
+	private List<Wallet> wallets = new ArrayList<>();
 
 	public Client(String name, String cpf, String telephoneNumber) {
 		this.name = name;
@@ -44,6 +44,6 @@ public class Client implements Serializable {
 		this.name = name;
 		this.cpf = cpf;
 		this.telephoneNumber = telephoneNumber;
-		this.wallets = new ArrayList<>(Collections.singletonList(wallet));
+		this.wallets = Arrays.asList(wallet);
 	}
 }

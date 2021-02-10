@@ -34,7 +34,7 @@ public class Wallet implements Serializable {
 
     @OneToMany
     @JoinColumn(name = "wallet_id")
-    List<Expense> expenses;
+    private List<Expense> expenses = new ArrayList<>();
 
     public Wallet(String description) {
         this.description = description;

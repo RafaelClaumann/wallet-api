@@ -1,5 +1,6 @@
 package br.com.application.wallet.services;
 
+import br.com.application.wallet.models.Client;
 import br.com.application.wallet.models.Wallet;
 import br.com.application.wallet.repositories.WalletRepository;
 import org.hibernate.ObjectNotFoundException;
@@ -10,15 +11,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 public class WalletServiceTest {
 
@@ -80,28 +79,50 @@ public class WalletServiceTest {
 	void shouldSaveAWalletTest() {
 		Wallet wallet = Wallet.builder().id(1L).description("Carteira").balance(BigDecimal.TEN)
 				.expenses(Collections.emptyList()).build();
+		Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
+				.telephoneNumber("48 0 0000-0000").build();
 
+		given(clientService.findClientById(1L)).willReturn(client);
 		given(walletRepository.save(any(Wallet.class))).willReturn(wallet);
 
-		final Wallet savedWallet = walletService.saveWallet(wallet);
+		final Wallet savedWallet = walletService.saveWallet(1L, wallet);
 
+		verify(walletRepository).save(wallet);
 		assertThat(wallet).isEqualTo(savedWallet);
 	}
 
 	@Test
 	void shouldThrowExceptionWhenTryToSaveNullWalletTest() {
-		given(walletRepository.save(null)).willThrow(IllegalArgumentException.class);
-
-		assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(null));
+		assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(1L, null));
 	}
 
 	@Test
-	void shouldThrowExceptionWhenSaveWalletWithoutDescriptionTest() {
-		Wallet wallet = new Wallet();
+	void shouldThrowExceptionWhenTryToSaveWalletWithoutDescriptionTest() {
+		assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(1L, new Wallet()));
+	}
 
-		given(walletRepository.save(wallet)).willThrow(IllegalArgumentException.class);
+	@Test
+	void shouldThrowExceptionWhenClientIdIsNullTest() {
+		Wallet wallet = Wallet.builder().id(1L).description("Carteira").balance(BigDecimal.TEN)
+				.expenses(Collections.emptyList()).build();
+		assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(null, wallet));
+	}
 
-		assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(wallet));
+	@Test
+	void shouldCreateNewListOfWalletsForClientTest() {
+		Wallet wallet = Wallet.builder().id(1L).description("Carteira").balance(BigDecimal.TEN)
+				.expenses(Collections.emptyList()).build();
+		Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
+				.telephoneNumber("48 0 0000-0000").wallets(null).build();
+
+		given(clientService.findClientById(1L)).willReturn(client);
+		given(walletRepository.save(any(Wallet.class))).willReturn(wallet);
+
+		final Wallet savedWallet = walletService.saveWallet(1L, wallet);
+
+		assertThat(wallet).isEqualTo(savedWallet);
+		assertThat(client.getWallets()).isNotNull();
+		assertThat(client.getWallets()).containsOnly(wallet);
 	}
 
 }
