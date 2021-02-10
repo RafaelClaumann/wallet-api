@@ -27,12 +27,7 @@ public class ClientController {
 	@GetMapping("/{id_client}/wallets")
 	public ResponseEntity<ClientWalletsDTO> findClientWithWallets(@PathVariable("id_client") final Long idClient) {
 		final Client client = clientService.findClientById(idClient);
-		final List<Wallet> wallets = client.getWallets();
-
-		final List<WalletDTO> collect = wallets.stream().map(WalletDTO::new).collect(Collectors.toList());
-		final ClientWalletsDTO clientWalletsDTO = new ClientWalletsDTO(client.getId(), client.getName(), collect);
-
-		return ResponseEntity.ok(clientWalletsDTO);
+		return ResponseEntity.ok(new ClientWalletsDTO(client));
 	}
 
 	@GetMapping("/{id_client}")

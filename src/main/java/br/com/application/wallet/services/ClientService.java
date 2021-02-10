@@ -27,11 +27,14 @@ public class ClientService {
 	public Client findClientById(final Long id) {
 		log.info("Buscando cliente com id {}.", id);
 		Optional<Client> client = clientRepository.findById(id);
+
 		if(client.isPresent()) {
-			if(Objects.isNull(client.get().getWallets()))
+			if(Objects.isNull(client.get().getWallets())) {
 				client.get().setWallets(new ArrayList<>());
+			}
 			return client.get();
 		}
+
 		throw new ClientNotFoundException("Cliente não encontrado, id: " + id);
 	}
 
