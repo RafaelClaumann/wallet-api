@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -26,7 +27,12 @@ public class ClientService {
 	public Client findClientById(final Long id) {
 		log.info("Buscando cliente com id {}.", id);
 		Optional<Client> client = clientRepository.findById(id);
-		return client.orElseThrow(() -> new ClientNotFoundException("Cliente não encontrado, id: " + id));
+		if(client.isPresent()) {
+			if(Objects.isNull(client.get().getWallets()))
+				client.get().setWallets(new ArrayList<>());
+			return client.get();
+		}
+		throw new ClientNotFoundException("Cliente não encontrado, id: " + id);
 	}
 
 	public List<Client> findAllClients() {

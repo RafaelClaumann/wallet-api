@@ -4,9 +4,9 @@ import br.com.application.wallet.models.Wallet;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Getter
 @AllArgsConstructor
@@ -21,10 +21,17 @@ public class WalletDTO {
 	@JsonProperty("wallet_balance")
 	private final BigDecimal balance;
 
+	@JsonProperty("has_expenses_flag")
+	private final Boolean hasExpensesFlag;
+
 	public WalletDTO(Wallet wallet) {
 		this.id = wallet.getId();
 		this.description = wallet.getDescription();
 		this.balance = wallet.getBalance();
+		this.hasExpensesFlag = setExpensesFlag(wallet);
 	}
 
+	private Boolean setExpensesFlag(final Wallet wallet ) {
+		return Objects.nonNull(wallet.getExpenses()) && wallet.getExpenses().size() > 0;
+	}
 }
