@@ -1,7 +1,6 @@
 package br.com.application.wallet.models.dto;
 
 import br.com.application.wallet.models.Client;
-import br.com.application.wallet.models.Wallet;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

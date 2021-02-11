@@ -1,9 +1,9 @@
 package br.com.application.wallet.services;
 
+import br.com.application.wallet.handler.exceptions.WalletNotFoundException;
 import br.com.application.wallet.models.Client;
 import br.com.application.wallet.models.Wallet;
 import br.com.application.wallet.repositories.WalletRepository;
-import org.hibernate.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -50,7 +50,7 @@ public class WalletServiceTest {
 	void shouldThrowAnExceptionWhenWalletNotFoundByIdTest() {
 		given(walletRepository.findById(any(Long.class))).willReturn(Optional.empty());
 
-		assertThrows(ObjectNotFoundException.class, () -> walletService.findWalletById(1L));
+		assertThrows(WalletNotFoundException.class, () -> walletService.findWalletById(1L));
 	}
 
 	@Test
