@@ -18,11 +18,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import br.com.application.wallet.handler.exceptions.ClientOpenedExpensesException;
+import br.com.application.wallet.mocks.MockClient;
 import br.com.application.wallet.models.Expense;
 import br.com.application.wallet.models.Wallet;
+import br.com.application.wallet.models.dto.ClientWalletExpensesDTO;
 import br.com.application.wallet.models.dto.ClientWalletsDTO;
 import br.com.application.wallet.models.dto.WalletDTO;
 import br.com.application.wallet.models.enums.ExpenseState;
+import br.com.application.wallet.models.enums.ExpenseType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +46,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import br.com.application.wallet.models.Client;
 import br.com.application.wallet.models.dto.ClientDTO;
 import br.com.application.wallet.services.ClientService;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -50,13 +55,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 @WebMvcTest(ClientController.class)
 class ClientControllerTest {
 
-	@MockBean private ClientService clientService;
+	@MockBean
+	private ClientService clientService;
 
-	@Autowired private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
 	private JacksonTester<ClientDTO> json;
 	private JacksonTester<List<ClientDTO>> jsonList;
 	private JacksonTester<ClientWalletsDTO> jsonClientWalletsDTO;
+	private JacksonTester<ClientWalletExpensesDTO> jsonClientWalletExpensesDTO;
 
 	@BeforeEach
 	void setup() {
@@ -152,6 +160,22 @@ class ClientControllerTest {
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 		assertThat(response.getContentAsString()).isEqualTo(jsonClientWalletsDTO.write(new ClientWalletsDTO(client)).getJson());
+	}
+
+	@Test
+	void shouldReturnClientWalletsExpensesListTest() throws Exception {
+		Client client = MockClient.mockClientWithWalletsAndExpenses();
+
+		given(clientService.findClientById(any(Long.class))).willReturn(client);
+		System.out.println(client);
+
+		MockHttpServletResponse response = mockMvc.perform(
+				get("/wallet/v1/clients/{id_client}/wallets/{id_wallet}", "1", "1"))
+				.andReturn().getResponse();
+
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getContentAsString())
+				.isEqualTo(jsonClientWalletExpensesDTO.write(new ClientWalletExpensesDTO(client, 1L)).getJson());
 	}
 
 }
