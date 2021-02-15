@@ -34,6 +34,3 @@ build/
 
 ### ENV FILE ###
 /src/main/resources/database.env
-Wallet/src/main/resources/database.env
-/home/rafaelcb/eclipse-workspace/Wallet/.gitignore
-!.src/main/resources/database.env
