@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ClientDTO {
 
+	@JsonProperty("client_id")
+	private Long id;
+
 	@JsonProperty("client_name")
 	private String name;
 
@@ -21,6 +24,7 @@ public class ClientDTO {
 	private String telephoneNumber;
 
 	public ClientDTO(Client client) {
+		this.id = client.getId();
 		this.name = client.getName();
 		this.cpf = client.getCpf();
 		this.telephoneNumber = client.getTelephoneNumber();

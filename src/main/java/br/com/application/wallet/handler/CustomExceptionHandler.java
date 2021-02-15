@@ -8,6 +8,7 @@ import br.com.application.wallet.handler.messages.FieldMessage;
 import br.com.application.wallet.handler.messages.ValidationError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -50,6 +51,14 @@ public class CustomExceptionHandler {
 		ApiError exceptionMessage = new ApiError(exception.getClass().getCanonicalName(), HttpStatus.BAD_REQUEST,
 				exception.getMessage(), LocalDateTime.now());
 		return new ResponseEntity<>(exceptionMessage, HttpStatus.BAD_REQUEST);
+	}
+
+	// Handle POST empty body
+	@ExceptionHandler(value = HttpMessageNotReadableException.class)
+	public ResponseEntity<ApiError> handleHttpMessageNotReadableExceptionException(HttpMessageNotReadableException exception) {
+		ApiError exceptionMessage = new ApiError(exception.getClass().getCanonicalName(), HttpStatus.UNPROCESSABLE_ENTITY,
+				exception.getMessage(), LocalDateTime.now());
+		return new ResponseEntity<>(exceptionMessage, HttpStatus.UNPROCESSABLE_ENTITY);
 	}
 
 }
