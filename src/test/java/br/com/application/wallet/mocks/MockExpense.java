@@ -10,16 +10,46 @@ import java.util.List;
 
 public class MockExpense {
 
-	public static Expense mockSingleExpense() {
-		return Expense.builder().id(1L).description("despesa1").value(BigDecimal.ONE).expenseType(ExpenseType.OTHER)
+	public static Expense mockSingleClosedExpense(final Long id) {
+		return Expense.builder().id(id).description("despesa1").value(BigDecimal.ONE).expenseType(ExpenseType.OTHER)
 				.expenseState(ExpenseState.CLOSED).build();
 	}
 
-	public static List<Expense> mockTwoExpensesList() {
-		Expense expense1 = Expense.builder().id(1L).description("despesa1").value(BigDecimal.ONE)
-				.expenseType(ExpenseType.OTHER).expenseState(ExpenseState.CLOSED).build();
-		Expense expense2 = Expense.builder().id(2L).description("despesa2").value(BigDecimal.TEN)
-				.expenseType(ExpenseType.CAR).expenseState(ExpenseState.CLOSED).build();
-		return Arrays.asList(expense1, expense2);
+	public static Expense mockSingleOpenedExpense(final Long id) {
+		return Expense.builder().id(id).description("despesa1").value(BigDecimal.ONE).expenseType(ExpenseType.OTHER)
+				.expenseState(ExpenseState.OPEN).build();
 	}
+
+	public static List<Expense> mockTwoOpenedExpensesList() {
+		return  generateListOfExpenses(true, false, false);
+	}
+
+	public static List<Expense> mockTwoClosedExpensesList() {
+		return generateListOfExpenses(false, true, false);
+	}
+
+	public static List<Expense> mockMixedOpenClosedExpensesList() {
+		return generateListOfExpenses(false, false, true);
+	}
+
+	private static List<Expense> generateListOfExpenses(final Boolean onlyOpened, final Boolean onlyClosed,
+			final Boolean mixed) {
+		Expense expense1 = mockSingleClosedExpense(1L);
+		Expense expense2 = mockSingleClosedExpense(2L);
+		List<Expense> expenses = Arrays.asList(expense1, expense2);
+
+		if (onlyOpened) {
+			expenses.get(0).setExpenseState(ExpenseState.OPEN);
+			expenses.get(1).setExpenseState(ExpenseState.OPEN);
+			return expenses;
+		}
+
+		if (mixed) {
+			expenses.get(0).setExpenseState(ExpenseState.OPEN);
+			return expenses;
+		}
+
+		return expenses;
+	}
+
 }

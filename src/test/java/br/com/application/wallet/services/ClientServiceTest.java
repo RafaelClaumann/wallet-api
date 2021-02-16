@@ -3,6 +3,9 @@ package br.com.application.wallet.services;
 import br.com.application.wallet.handler.exceptions.ClientNotFoundException;
 import br.com.application.wallet.handler.exceptions.ClientOpenedExpensesException;
 import br.com.application.wallet.handler.exceptions.DuplicateDocumentException;
+import br.com.application.wallet.mocks.MockClient;
+import br.com.application.wallet.mocks.MockExpense;
+import br.com.application.wallet.mocks.MockWallet;
 import br.com.application.wallet.models.Client;
 import br.com.application.wallet.models.Expense;
 import br.com.application.wallet.models.Wallet;
@@ -21,6 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static br.com.application.wallet.mocks.MockClient.mockSingleClient;
+import static br.com.application.wallet.mocks.MockExpense.mockMixedOpenClosedExpensesList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,13 +49,12 @@ public class ClientServiceTest {
 
 	@Test
 	void returnClientByIdTest() {
-		long clientId = 1L;
-		Client client = Client.builder().id(clientId).name("Rafael Claumann").build();
-		given(clientRepository.findById(clientId)).willReturn(Optional.of(client));
+		Client client = mockSingleClient(1L);
+		given(clientRepository.findById(1L)).willReturn(Optional.of(client));
 
-		Client foundClient = clientService.findClientById(clientId);
+		Client foundClient = clientService.findClientById(1L);
 
-		verify(clientRepository).findById(clientId);
+		verify(clientRepository).findById(1L);
 		assertThat(foundClient).isEqualTo(client);
 	}
 
@@ -63,8 +67,8 @@ public class ClientServiceTest {
 
 	@Test
 	void findAllClientsTest() {
-		Client client1 = Client.builder().id(1L).name("First Client").build();
-		Client client2 = Client.builder().id(2L).name("Second Client").build();
+		Client client1 = mockSingleClient(1L);
+		Client client2 = mockSingleClient(2L);
 		List<Client> expectedClients = Arrays.asList(client1, client2);
 		given(clientRepository.findAll()).willReturn(expectedClients);
 
@@ -80,8 +84,8 @@ public class ClientServiceTest {
 
 	@Test
 	void deleteClientWithAnEmptyListOfWalletsTest() {
-		List<Wallet> wallets = Collections.emptyList();
-		Client client = Client.builder().id(1L).name("Client").wallets(wallets).build();
+		Client client = mockSingleClient(1L);
+		client.setWallets(Collections.emptyList());
 
 		given(clientRepository.findById(any(Long.class))).willReturn(Optional.of(client));
 		doNothing().when(clientRepository).deleteById(any(Long.class));
@@ -93,7 +97,8 @@ public class ClientServiceTest {
 
 	@Test
 	void deleteClientWithNullListOfWalletsTest() {
-		Client client = Client.builder().id(1L).name("First Client").cpf("000.000.000-00").wallets(null).build();
+		Client client = mockSingleClient(1L);
+		client.setWallets(null);
 
 		given(clientRepository.findById(1L)).willReturn(Optional.of(client));
 
@@ -104,8 +109,8 @@ public class ClientServiceTest {
 
 	@Test
 	void deleteClientPassingNullValueAsExpenseListTest() {
-		Wallet wallet = Wallet.builder().id(1L).balance(BigDecimal.valueOf(50)).expenses(null).build();
-		Client client = Client.builder().id(1L).name("First Client").wallets(Collections.singletonList(wallet)).build();
+		Client client = mockSingleClient(1L);
+		client.getWallets().forEach(wallet -> wallet.setExpenses(null));
 
 		given(clientRepository.findById(1L)).willReturn(Optional.of(client));
 
@@ -116,8 +121,8 @@ public class ClientServiceTest {
 
 	@Test
 	void deleteClientPassingAnEmptyListAsExpenseListTest() {
-		Wallet wallet = Wallet.builder().id(1L).balance(BigDecimal.valueOf(50)).expenses(Collections.emptyList()).build();
-		Client client = Client.builder().id(1L).name("First Client").wallets(Collections.singletonList(wallet)).build();
+		Client client = mockSingleClient(1L);
+		client.getWallets().forEach(wallet -> wallet.setExpenses(Collections.emptyList()));
 
 		given(clientRepository.findById(1L)).willReturn(Optional.of(client));
 
@@ -128,10 +133,7 @@ public class ClientServiceTest {
 
 	@Test
 	void deleteClientWithWalletContainingOnlyClosedExpensesTest() {
-		Expense expense1 = Expense.builder().id(1L).expenseState(ExpenseState.CLOSED).build();
-		Expense expense2 = Expense.builder().id(2L).expenseState(ExpenseState.CLOSED).build();
-		Wallet wallet = Wallet.builder().id(1L).balance(BigDecimal.valueOf(8000))
-				.expenses(Arrays.asList(expense1, expense2)).build();
+		Wallet wallet = MockWallet.mockSingleWalletWithClosedExpenses(1L);
 		Client client = Client.builder().id(1L).name("First Client").wallets(Collections.singletonList(wallet)).build();
 
 		given(clientRepository.findById(1L)).willReturn(Optional.of(client));
@@ -143,11 +145,8 @@ public class ClientServiceTest {
 
 	@Test
 	void shouldThrowExceptionWhenDeleteClientWithOpenExpensesTest() {
-		Expense expense1 = Expense.builder().id(1L).expenseState(ExpenseState.OPEN).build();
-		Expense expense2 = Expense.builder().id(2L).expenseState(ExpenseState.CLOSED).build();
-		List<Expense> expenses = Arrays.asList(expense1, expense2);
-
-		Wallet wallet = Wallet.builder().id(1L).balance(BigDecimal.valueOf(8000)).expenses(expenses).build();
+		List<Expense> expenses = mockMixedOpenClosedExpensesList();
+		Wallet wallet = MockWallet.mockSingleWallet(1L, expenses);
 		Client client = Client.builder().id(1L).name("First Client").wallets(Collections.singletonList(wallet)).build();
 
 		given(clientRepository.findById(1L)).willReturn(Optional.of(client));
@@ -161,27 +160,30 @@ public class ClientServiceTest {
 
 	@Test
 	void changeClientPropertiesTest() {
-		Client client1 = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
-				.telephoneNumber("48 0 0000-0000").build();
-		Client client2 = Client.builder().id(1L).name("First Client").cpf("124.327.440-98")
-				.telephoneNumber("48 2 2222-2222").build();
-		given(clientRepository.save(any(Client.class))).willReturn(client1, client2);
+		String cpf = "531.521.400-10";
+		String modifiedCpf = "124.327.440-98";
 
-		Client savedClient = clientService.saveClient(client1);
-		Client changedClient = clientService.changeClient(client2);
+		Client client = mockSingleClient(1L, cpf);
+		Client modifiedClient = mockSingleClient(1L, modifiedCpf);
 
-		assertThat(client1).isEqualTo(savedClient);
-		assertThat(client2).isEqualTo(changedClient);
+		given(clientRepository.save(any(Client.class))).willReturn(client, modifiedClient);
+
+		Client savedClient = clientService.saveClient(client);
+		Client changedClient = clientService.changeClient(modifiedClient);
+
+		assertThat(client).isEqualTo(savedClient);
+		assertThat(modifiedClient).isEqualTo(changedClient);
 	}
 
 	@Test
 	void clientSaveTest() {
-		Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
-				.telephoneNumber("48 0 0000-0000").build();
+		Client client = mockSingleClient(1L, "531.521.400-10");
+
 		given(clientRepository.save(any(Client.class))).willReturn(client);
 
 		Client savedClient = clientService.saveClient(client);
 
+		verify(clientRepository).save(client);
 		assertThat(client).isEqualTo(savedClient);
 	}
 
@@ -194,10 +196,11 @@ public class ClientServiceTest {
 
 	@Test
 	void shouldThrowExceptionWhenSaveClientsWithSameCpfTest() {
-		Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
-				.telephoneNumber("48 0 0000-0000").build();
-		given(clientRepository.save(client)).willThrow(DataIntegrityViolationException.class);
+		Client client = mockSingleClient(1L, "531.521.400-10");
 
+		given(clientRepository.save(client)).willReturn(client).willThrow(DataIntegrityViolationException.class);
+
+		clientService.saveClient(client);
 		DuplicateDocumentException exception = assertThrows(DuplicateDocumentException.class,
 				() -> clientService.saveClient(client));
 
@@ -216,29 +219,31 @@ public class ClientServiceTest {
 
 	@Test
 	void checkClientAttributesValidationOnChangeClientMethodTest() {
-		Client clientWithoutCpf = Client.builder().id(1L).name("First Client").telephoneNumber("48 0 0000-0000")
-				.build();
+		Client clientWithoutCpf = mockSingleClient(1L);
+		clientWithoutCpf.setCpf(null);
 		assertThrows(IllegalArgumentException.class, () -> clientService.changeClient(clientWithoutCpf));
 
-		Client clientWithoutName = Client.builder().id(2L).cpf("531.521.400-10").telephoneNumber("48 0 0000-0000")
-				.build();
+		Client clientWithoutName = mockSingleClient(2L);
+		clientWithoutName.setName(null);
 		assertThrows(IllegalArgumentException.class, () -> clientService.changeClient(clientWithoutName));
 
-		Client clientWithoutTelephone = Client.builder().id(3L).name("First Client").cpf("531.521.400-10").build();
+		Client clientWithoutTelephone = mockSingleClient(3L);
+		clientWithoutTelephone.setTelephoneNumber(null);
 		assertThrows(IllegalArgumentException.class, () -> clientService.changeClient(clientWithoutTelephone));
 	}
 
 	@Test
 	void checkClientAttributesValidationOnSaveClientMethodTest() {
-		Client clientWithoutCpf = Client.builder().id(1L).name("First Client").telephoneNumber("48 0 0000-0000")
-				.build();
+		Client clientWithoutCpf = mockSingleClient(1L);
+		clientWithoutCpf.setCpf(null);
 		assertThrows(IllegalArgumentException.class, () -> clientService.saveClient(clientWithoutCpf));
 
-		Client clientWithoutName = Client.builder().id(2L).cpf("531.521.400-10").telephoneNumber("48 0 0000-0000")
-				.build();
+		Client clientWithoutName = mockSingleClient(2L);
+		clientWithoutName.setName(null);
 		assertThrows(IllegalArgumentException.class, () -> clientService.saveClient(clientWithoutName));
 
-		Client clientWithoutTelephone = Client.builder().id(3L).name("First Client").cpf("531.521.400-10").build();
+		Client clientWithoutTelephone = mockSingleClient(3L);
+		clientWithoutTelephone.setTelephoneNumber(null);
 		assertThrows(IllegalArgumentException.class, () -> clientService.saveClient(clientWithoutTelephone));
 	}
 

@@ -1,5 +1,6 @@
 package br.com.application.wallet.controllers;
 
+import static br.com.application.wallet.mocks.MockClient.mockSingleClient;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -64,7 +65,7 @@ class ClientControllerTest {
 
 	@Test
 	void findClientByIdTest() throws Exception {
-		Client client = MockClient.mockSingleClientWithoutWalletsAndExpenses();
+		Client client = mockSingleClient(1L);
 		given(clientService.findClientById(1L)).willReturn(client);
 
 		MockHttpServletResponse response = mockMvc.perform(get("/wallet/v1/clients/{id_client}", "1")).andReturn()
@@ -76,9 +77,9 @@ class ClientControllerTest {
 
 	@Test
 	void findAllClientsTest() throws Exception {
-		Client client0 = MockClient.mockSingleClientWithoutWalletsAndExpenses();
-		Client client1 = MockClient.mockSingleClientWithoutWalletsAndExpenses();
-		Client client2 = MockClient.mockSingleClientWithoutWalletsAndExpenses();
+		Client client0 = mockSingleClient(1L);
+		Client client1 = mockSingleClient(2L);
+		Client client2 = mockSingleClient(3L);
 		List<Client> clients = asList(client0, client1, client2);
 		List<ClientDTO> expectedClients = clients.stream().map(ClientDTO::new).collect(Collectors.toList());
 
@@ -101,7 +102,7 @@ class ClientControllerTest {
 
 	@Test
 	void shouldPostNewClientTest() throws Exception {
-		Client client = MockClient.mockSingleClientWithWalletsAndExpenses();
+		Client client = mockSingleClient(1L);
 		client.setId(null);
 		ClientDTO clientDTO = new ClientDTO(client);
 
@@ -138,7 +139,7 @@ class ClientControllerTest {
 
 	@Test
 	void shouldReturnClientWalletsListTest() throws Exception {
-		Client client = MockClient.mockSingleClientWithWalletsAndExpenses();
+		Client client = mockSingleClient(1l);
 
 		given(clientService.findClientById(any(Long.class))).willReturn(client);
 
@@ -151,7 +152,7 @@ class ClientControllerTest {
 
 	@Test
 	void shouldReturnClientWalletsExpensesListTest() throws Exception {
-		Client client = MockClient.mockSingleClientWithWalletsAndExpenses();
+		Client client = mockSingleClient(1L);
 
 		given(clientService.findClientById(any(Long.class))).willReturn(client);
 		System.out.println(client);

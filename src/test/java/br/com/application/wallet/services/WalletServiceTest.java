@@ -1,6 +1,7 @@
 package br.com.application.wallet.services;
 
 import br.com.application.wallet.handler.exceptions.WalletNotFoundException;
+import br.com.application.wallet.mocks.MockWallet;
 import br.com.application.wallet.models.Client;
 import br.com.application.wallet.models.Wallet;
 import br.com.application.wallet.repositories.WalletRepository;
@@ -13,6 +14,7 @@ import org.mockito.MockitoAnnotations;
 import java.math.BigDecimal;
 import java.util.*;
 
+import static br.com.application.wallet.mocks.MockWallet.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,8 +39,8 @@ public class WalletServiceTest {
 
 	@Test
 	void shouldReturnWalletByIdTest() {
-		Wallet wallet = Wallet.builder().id(1L).description("Carteira").balance(BigDecimal.TEN)
-				.expenses(Collections.emptyList()).build();
+		Wallet wallet = mockSingleWallet(1L, Collections.emptyList());
+
 		given(walletRepository.findById(any(Long.class))).willReturn(Optional.of(wallet));
 
 		final Wallet foundWallet = walletService.findWalletById(1L);
@@ -55,8 +57,8 @@ public class WalletServiceTest {
 
 	@Test
 	void shouldReturnAListOfWalletsTest() {
-		Wallet wallet1 = Wallet.builder().id(1L).description("Carteira1").build();
-		Wallet wallet2 = Wallet.builder().id(2L).description("Carteira2").build();
+		Wallet wallet1 = mockSingleWalletWithOpenedExpenses(1L);
+		Wallet wallet2 = mockSingleWalletWithClosedExpenses(2L);
 		final List<Wallet> wallets = Arrays.asList(wallet1, wallet2);
 
 		given(walletRepository.findAll()).willReturn(wallets);
@@ -77,8 +79,7 @@ public class WalletServiceTest {
 
 	@Test
 	void shouldSaveAWalletTest() {
-		Wallet wallet = Wallet.builder().id(1L).description("Carteira").balance(BigDecimal.TEN)
-				.expenses(Collections.emptyList()).build();
+		Wallet wallet = mockSingleWallet(1L);
 		Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
 				.telephoneNumber("48 0 0000-0000").build();
 
@@ -103,15 +104,13 @@ public class WalletServiceTest {
 
 	@Test
 	void shouldThrowExceptionWhenClientIdIsNullTest() {
-		Wallet wallet = Wallet.builder().id(1L).description("Carteira").balance(BigDecimal.TEN)
-				.expenses(Collections.emptyList()).build();
+		Wallet wallet = mockSingleWallet(1L);
 		assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(null, wallet));
 	}
 
 	@Test
 	void shouldCreateNewListOfWalletsForClientTest() {
-		Wallet wallet = Wallet.builder().id(1L).description("Carteira").balance(BigDecimal.TEN)
-				.expenses(Collections.emptyList()).build();
+		Wallet wallet = mockSingleWallet(1L);
 		Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
 				.telephoneNumber("48 0 0000-0000").wallets(null).build();
 
