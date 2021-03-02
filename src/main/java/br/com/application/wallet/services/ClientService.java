@@ -5,10 +5,14 @@ import br.com.application.wallet.handler.exceptions.DuplicateDocumentException;
 import br.com.application.wallet.handler.exceptions.OpenedExpensesException;
 import br.com.application.wallet.models.Client;
 import br.com.application.wallet.models.Wallet;
+import br.com.application.wallet.models.api.Data;
+import br.com.application.wallet.models.dto.ClientDTO;
 import br.com.application.wallet.models.enums.ExpenseState;
 import br.com.application.wallet.repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -36,8 +40,15 @@ public class ClientService {
 		throw new ClientNotFoundException("Cliente não encontrado, id: " + id);
 	}
 
-	public List<Client> findAllClients() {
-		return clientRepository.findAll();
+	public ResponseEntity<Data<List<ClientDTO>>> findAllClients() {
+		final List<Client> clientList = clientRepository.findAll();
+
+		if(clientList.isEmpty())
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+		final List<ClientDTO> clientDTOS = ClientDTO.convertListToDTO(clientList);
+
+		return new ResponseEntity<>(new Data<>(clientDTOS), HttpStatus.OK);
 	}
 
 	public boolean deleteClient(final Long id) {

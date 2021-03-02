@@ -2,6 +2,7 @@ package br.com.application.wallet.controllers;
 
 import br.com.application.wallet.handler.exceptions.OpenedExpensesException;
 import br.com.application.wallet.models.Client;
+import br.com.application.wallet.models.api.Data;
 import br.com.application.wallet.models.dto.ClientDTO;
 import br.com.application.wallet.models.dto.ClientWalletExpensesDTO;
 import br.com.application.wallet.models.dto.ClientWalletsDTO;
@@ -16,6 +17,7 @@ import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -45,6 +47,7 @@ class ClientControllerTest {
 	private JacksonTester<List<ClientDTO>> jsonList;
 	private JacksonTester<ClientWalletsDTO> jsonClientWalletsDTO;
 	private JacksonTester<ClientWalletExpensesDTO> jsonClientWalletExpensesDTO;
+	private JacksonTester<Data<?>> jsonData;
 
 	@BeforeEach
 	void setup() {
@@ -69,23 +72,23 @@ class ClientControllerTest {
 		Client client1 = mockSingleClient(2L);
 		Client client2 = mockSingleClient(3L);
 		List<Client> clients = asList(client0, client1, client2);
-		List<ClientDTO> expectedClients = clients.stream().map(ClientDTO::new).collect(Collectors.toList());
+		List<ClientDTO> expectedClients = ClientDTO.convertListToDTO(clients);
 
-		given(clientService.findAllClients()).willReturn(clients);
+		given(clientService.findAllClients()).willReturn(new ResponseEntity<>(new Data<>(expectedClients), HttpStatus.OK));
 
 		MockHttpServletResponse response = mockMvc.perform(get("/wallet/v1/clients/")).andReturn().getResponse();
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-		assertThat(response.getContentAsString()).isEqualTo(jsonList.write(expectedClients).getJson());
+		assertThat(response.getContentAsString()).isEqualTo(jsonData.write(new Data<>(expectedClients)).getJson());
 	}
 
 	@Test
 	void findAllClientsShouldReturnAnEmptyList() throws Exception {
-		given(clientService.findAllClients()).willReturn(Collections.emptyList());
+		given(clientService.findAllClients()).willReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
 
 		MockHttpServletResponse response = mockMvc.perform(get("/wallet/v1/clients/")).andReturn().getResponse();
 
-		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
 	}
 
 	@Test

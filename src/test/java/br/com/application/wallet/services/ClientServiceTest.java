@@ -7,6 +7,8 @@ import br.com.application.wallet.mocks.MockWallet;
 import br.com.application.wallet.models.Client;
 import br.com.application.wallet.models.Expense;
 import br.com.application.wallet.models.Wallet;
+import br.com.application.wallet.models.api.Data;
+import br.com.application.wallet.models.dto.ClientDTO;
 import br.com.application.wallet.repositories.ClientRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -68,10 +71,10 @@ public class ClientServiceTest {
 		List<Client> expectedClients = Arrays.asList(client1, client2);
 		given(clientRepository.findAll()).willReturn(expectedClients);
 
-		List<Client> foundClients = clientService.findAllClients();
+		final ResponseEntity<Data<List<ClientDTO>>> foundClients = clientService.findAllClients();
 
 		final Long expectedId = expectedClients.get(1).getId();
-		final Long foundId = foundClients.get(1).getId();
+		final Long foundId = foundClients.getBody().getData().get(1).getId();
 
 		verify(clientRepository).findAll();
 		assertThat(expectedId).isEqualTo(foundId);
