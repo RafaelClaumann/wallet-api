@@ -5,6 +5,7 @@ import br.com.application.wallet.models.enums.ExpenseState;
 import br.com.application.wallet.models.enums.ExpenseType;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -49,7 +50,11 @@ public class MockExpense {
 			return expenses;
 		}
 
-		return expenses;
+		if(onlyClosed) {
+			return  expenses;
+		}
+
+		return new ArrayList<>();
 	}
 
 }

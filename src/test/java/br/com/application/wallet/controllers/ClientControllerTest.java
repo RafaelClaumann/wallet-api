@@ -1,29 +1,12 @@
 package br.com.application.wallet.controllers;
 
-import static br.com.application.wallet.mocks.MockClient.mockSingleClient;
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import br.com.application.wallet.handler.exceptions.ClientOpenedExpensesException;
-import br.com.application.wallet.mocks.MockClient;
-import br.com.application.wallet.models.Expense;
-import br.com.application.wallet.models.Wallet;
+import br.com.application.wallet.handler.exceptions.OpenedExpensesException;
+import br.com.application.wallet.models.Client;
+import br.com.application.wallet.models.dto.ClientDTO;
 import br.com.application.wallet.models.dto.ClientWalletExpensesDTO;
 import br.com.application.wallet.models.dto.ClientWalletsDTO;
-import br.com.application.wallet.models.enums.ExpenseState;
+import br.com.application.wallet.services.ClientService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,11 +20,16 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import br.com.application.wallet.models.Client;
-import br.com.application.wallet.models.dto.ClientDTO;
-import br.com.application.wallet.services.ClientService;
+import static br.com.application.wallet.mocks.MockClient.mockSingleClient;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(ClientController.class)
@@ -129,7 +117,7 @@ class ClientControllerTest {
 
 	@Test
 	void deleteClientShouldReturnHttpBadRequestTest() throws Exception {
-		given(clientService.deleteClient(any(Long.class))).willThrow(ClientOpenedExpensesException.class);
+		given(clientService.deleteClient(any(Long.class))).willThrow(OpenedExpensesException.class);
 
 		final MockHttpServletResponse response = mockMvc.perform(delete("/wallet/v1/clients/{id_client}", "1"))
 				.andReturn().getResponse();

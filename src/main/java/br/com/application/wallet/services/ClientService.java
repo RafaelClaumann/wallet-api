@@ -1,13 +1,12 @@
 package br.com.application.wallet.services;
 
 import br.com.application.wallet.handler.exceptions.ClientNotFoundException;
-import br.com.application.wallet.handler.exceptions.ClientOpenedExpensesException;
 import br.com.application.wallet.handler.exceptions.DuplicateDocumentException;
+import br.com.application.wallet.handler.exceptions.OpenedExpensesException;
 import br.com.application.wallet.models.Client;
 import br.com.application.wallet.models.Wallet;
 import br.com.application.wallet.models.enums.ExpenseState;
 import br.com.application.wallet.repositories.ClientRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -19,17 +18,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 public class ClientService {
 
-	@Autowired private ClientRepository clientRepository;
+	@Autowired
+	private ClientRepository clientRepository;
 
 	public Client findClientById(final Long id) {
-		log.info("Buscando cliente com id {}.", id);
 		Optional<Client> client = clientRepository.findById(id);
 
-		if(client.isPresent()) {
-			if(Objects.isNull(client.get().getWallets())) {
+		if (client.isPresent()) {
+			if (Objects.isNull(client.get().getWallets())) {
 				client.get().setWallets(new ArrayList<>());
 			}
 			return client.get();
@@ -43,15 +41,11 @@ public class ClientService {
 	}
 
 	public boolean deleteClient(final Long id) {
-		log.info("Tentando deletar cliente com id {}.", id);
-		if (Objects.isNull(id)) {
-			throw new IllegalArgumentException("É preciso informar um id válido. ID informado: {" + id + "}");
-		}
+
 		if (checkClientOpenedExpensesBeforeDelete(id)) {
-			log.info("Cliente com id {} não pode ser deletado.", id);
-			throw new ClientOpenedExpensesException("Cliente com id {" + id + "} possui pendencias na carteira!");
+			throw new OpenedExpensesException("Cliente com id {" + id + "} possui pendencias na carteira!");
 		}
-		log.info("Deletando cliente com id {}", id);
+
 		clientRepository.deleteById(id);
 		return true;
 	}
@@ -66,16 +60,9 @@ public class ClientService {
 	}
 
 	public Client saveClient(final Client client) {
-		if (Objects.isNull(client) || Objects.isNull(client.getName()) || Objects.isNull(client.getCpf()) || Objects
-				.isNull(client.getTelephoneNumber())) {
-			throw new IllegalArgumentException("Cliente inválido");
-		}
-
 		try {
-			log.info("Salvando client, nome: {}, cpf: {}", client.getName(), client.getCpf());
 			return clientRepository.save(client);
 		} catch (DataIntegrityViolationException exception) {
-			log.info("CPF {} já cadastrado no sistema", client.getCpf());
 			throw new DuplicateDocumentException("CPF { " + client.getCpf() + " } já cadastrado");
 		}
 	}
@@ -86,13 +73,10 @@ public class ClientService {
 	 */
 	private boolean checkClientOpenedExpensesBeforeDelete(final Long id) {
 		Client client = this.findClientById(id);
-		if (Objects.isNull(client.getWallets()) || client.getWallets().isEmpty()) {
-			return false;
-		}
+
 		List<Boolean> collect = client.getWallets().stream().map(this::checkWalletOpenedExpenses)
 				.collect(Collectors.toUnmodifiableList());
 
-		log.info("ClientId {{}}, Wallets {}", id, client.getWallets());
 		return collect.stream().anyMatch(bool -> bool.equals(Boolean.TRUE));
 	}
 
@@ -101,13 +85,11 @@ public class ClientService {
 	 * @return true se o wallet possuir pelo menos uma despesa em aberto(OPEN).
 	 */
 	private boolean checkWalletOpenedExpenses(final Wallet wallet) {
-		log.info("Verificando se carteira com id {{}} possui despesas em aberto.", wallet.getId());
 		if (Objects.isNull(wallet.getExpenses()) || wallet.getExpenses().isEmpty())
 			return false;
 
 		final boolean hasOpenedExpenses = wallet.getExpenses().stream()
 				.anyMatch(expense -> expense.getExpenseState().equals(ExpenseState.OPEN));
-		log.info("Carteira com id {{}} possui despesas em aberto? {{}}", wallet.getId(), hasOpenedExpenses);
 		return hasOpenedExpenses;
 	}
 }

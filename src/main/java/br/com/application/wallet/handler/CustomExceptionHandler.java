@@ -1,7 +1,7 @@
 package br.com.application.wallet.handler;
 
 import br.com.application.wallet.handler.exceptions.ClientNotFoundException;
-import br.com.application.wallet.handler.exceptions.ClientOpenedExpensesException;
+import br.com.application.wallet.handler.exceptions.OpenedExpensesException;
 import br.com.application.wallet.handler.exceptions.DuplicateDocumentException;
 import br.com.application.wallet.handler.exceptions.WalletNotFoundException;
 import br.com.application.wallet.handler.messages.ApiError;
@@ -33,8 +33,8 @@ public class CustomExceptionHandler {
 		return new ResponseEntity<>(exceptionMessage, HttpStatus.NOT_FOUND);
 	}
 
-	@ExceptionHandler(value = ClientOpenedExpensesException.class)
-	public ResponseEntity<ApiError> handleClientOpenedExpensesException(ClientOpenedExpensesException exception) {
+	@ExceptionHandler(value = OpenedExpensesException.class)
+	public ResponseEntity<ApiError> handleOpenedExpensesException(OpenedExpensesException exception) {
 		ApiError exceptionMessage = new ApiError(exception.getClass().getCanonicalName(), HttpStatus.BAD_REQUEST,
 				exception.getMessage(), LocalDateTime.now());
 		return new ResponseEntity<>(exceptionMessage, HttpStatus.BAD_REQUEST);

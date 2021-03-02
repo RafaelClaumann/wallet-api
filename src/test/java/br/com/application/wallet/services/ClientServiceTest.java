@@ -1,15 +1,12 @@
 package br.com.application.wallet.services;
 
 import br.com.application.wallet.handler.exceptions.ClientNotFoundException;
-import br.com.application.wallet.handler.exceptions.ClientOpenedExpensesException;
+import br.com.application.wallet.handler.exceptions.OpenedExpensesException;
 import br.com.application.wallet.handler.exceptions.DuplicateDocumentException;
-import br.com.application.wallet.mocks.MockClient;
-import br.com.application.wallet.mocks.MockExpense;
 import br.com.application.wallet.mocks.MockWallet;
 import br.com.application.wallet.models.Client;
 import br.com.application.wallet.models.Expense;
 import br.com.application.wallet.models.Wallet;
-import br.com.application.wallet.models.enums.ExpenseState;
 import br.com.application.wallet.repositories.ClientRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -151,7 +147,7 @@ public class ClientServiceTest {
 
 		given(clientRepository.findById(1L)).willReturn(Optional.of(client));
 
-		Exception exception = assertThrows(ClientOpenedExpensesException.class, () -> clientService.deleteClient(1L));
+		Exception exception = assertThrows(OpenedExpensesException.class, () -> clientService.deleteClient(1L));
 		String expectedMessage = "Cliente com id {1} possui pendencias na carteira!";
 		String exceptionMessage = exception.getMessage();
 
@@ -188,13 +184,6 @@ public class ClientServiceTest {
 	}
 
 	@Test
-	void shouldThrowExceptionWhenClientIdIsNullTest() {
-		given(clientRepository.findById(any(Long.class))).willReturn(Optional.empty());
-
-		assertThrows(IllegalArgumentException.class, () -> clientService.deleteClient(null));
-	}
-
-	@Test
 	void shouldThrowExceptionWhenSaveClientsWithSameCpfTest() {
 		Client client = mockSingleClient(1L, "531.521.400-10");
 
@@ -211,13 +200,6 @@ public class ClientServiceTest {
 	}
 
 	@Test
-	void shouldThrowExceptionWhenClientIsNullTest() {
-		Client client = null;
-		assertThrows(IllegalArgumentException.class, () -> clientService.changeClient(client));
-		assertThrows(IllegalArgumentException.class, () -> clientService.saveClient(client));
-	}
-
-	@Test
 	void checkClientAttributesValidationOnChangeClientMethodTest() {
 		Client clientWithoutCpf = mockSingleClient(1L);
 		clientWithoutCpf.setCpf(null);
@@ -230,21 +212,6 @@ public class ClientServiceTest {
 		Client clientWithoutTelephone = mockSingleClient(3L);
 		clientWithoutTelephone.setTelephoneNumber(null);
 		assertThrows(IllegalArgumentException.class, () -> clientService.changeClient(clientWithoutTelephone));
-	}
-
-	@Test
-	void checkClientAttributesValidationOnSaveClientMethodTest() {
-		Client clientWithoutCpf = mockSingleClient(1L);
-		clientWithoutCpf.setCpf(null);
-		assertThrows(IllegalArgumentException.class, () -> clientService.saveClient(clientWithoutCpf));
-
-		Client clientWithoutName = mockSingleClient(2L);
-		clientWithoutName.setName(null);
-		assertThrows(IllegalArgumentException.class, () -> clientService.saveClient(clientWithoutName));
-
-		Client clientWithoutTelephone = mockSingleClient(3L);
-		clientWithoutTelephone.setTelephoneNumber(null);
-		assertThrows(IllegalArgumentException.class, () -> clientService.saveClient(clientWithoutTelephone));
 	}
 
 }

@@ -1,4 +1,4 @@
-package br.com.application.wallet.models.dto;
+package br.com.application.wallet.models.dto.form;
 
 import br.com.application.wallet.models.Client;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,7 +8,6 @@ import org.hibernate.validator.constraints.br.CPF;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
-import javax.validation.constraints.NotNull;
 
 @Getter
 @NoArgsConstructor

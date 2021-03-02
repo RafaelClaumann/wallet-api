@@ -1,7 +1,6 @@
 package br.com.application.wallet.services;
 
 import br.com.application.wallet.handler.exceptions.WalletNotFoundException;
-import br.com.application.wallet.mocks.MockWallet;
 import br.com.application.wallet.models.Client;
 import br.com.application.wallet.models.Wallet;
 import br.com.application.wallet.repositories.WalletRepository;
@@ -11,8 +10,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static br.com.application.wallet.mocks.MockWallet.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,6 +48,19 @@ public class WalletServiceTest {
 
 		assertThat(foundWallet).isEqualTo(wallet);
 	}
+
+/*	@Test
+	void shouldInstantiateExpensesListForAGivenWalletTest() {
+		Wallet wallet = new Wallet();
+		wallet.setExpenses(null);
+
+		given(walletRepository.findById(any(Long.class))).willReturn(Optional.of(wallet));
+
+		final Wallet foundWallet = walletService.findWalletById(1L);
+
+		assertThat(wallet.getExpenses()).isNull();
+		assertThat(foundWallet.getExpenses()).isNotNull();
+	}*/
 
 	@Test
 	void shouldThrowAnExceptionWhenWalletNotFoundByIdTest() {

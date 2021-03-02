@@ -1,8 +1,8 @@
 package br.com.application.wallet.controllers;
 
 import br.com.application.wallet.models.Client;
-import br.com.application.wallet.models.Wallet;
 import br.com.application.wallet.models.dto.*;
+import br.com.application.wallet.models.dto.form.ClientForm;
 import br.com.application.wallet.services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
