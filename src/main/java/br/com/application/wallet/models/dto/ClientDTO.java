@@ -2,15 +2,15 @@ package br.com.application.wallet.models.dto;
 
 import br.com.application.wallet.models.Client;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
+@ToString
 @NoArgsConstructor
+@EqualsAndHashCode
 @AllArgsConstructor
 public class ClientDTO {
 

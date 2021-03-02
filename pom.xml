@@ -103,6 +103,8 @@
                 		<exclude>**/dto/**</exclude>
                         <exclude>**/enums/**</exclude>
                         <exclude>**/handler/**</exclude>
+                        <exclude>**/api/**</exclude>
+                        <exclude>**/api/**</exclude>
                 	</excludes>
                 </configuration>
                 

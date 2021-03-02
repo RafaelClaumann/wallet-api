@@ -47,7 +47,7 @@ class ClientControllerTest {
 	private JacksonTester<List<ClientDTO>> jsonList;
 	private JacksonTester<ClientWalletsDTO> jsonClientWalletsDTO;
 	private JacksonTester<ClientWalletExpensesDTO> jsonClientWalletExpensesDTO;
-	private JacksonTester<Data<?>> jsonData;
+	private JacksonTester<Data<List<ClientDTO>>> jsonData;
 
 	@BeforeEach
 	void setup() {

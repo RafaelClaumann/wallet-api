@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
@@ -65,20 +66,33 @@ public class ClientServiceTest {
 	}
 
 	@Test
-	void findAllClientsTest() {
+	void findAllClientsSuccessTest() {
 		Client client1 = mockSingleClient(1L);
 		Client client2 = mockSingleClient(2L);
-		List<Client> expectedClients = Arrays.asList(client1, client2);
-		given(clientRepository.findAll()).willReturn(expectedClients);
+		List<Client> clients = Arrays.asList(client1, client2);
+
+		given(clientRepository.findAll()).willReturn(clients);
 
 		final ResponseEntity<Data<List<ClientDTO>>> foundClients = clientService.findAllClients();
 
-		final Long expectedId = expectedClients.get(1).getId();
+		final Long expectedId = clients.get(1).getId();
 		final Long foundId = foundClients.getBody().getData().get(1).getId();
+		final List<ClientDTO> clientDTOS = ClientDTO.convertListToDTO(clients);
 
 		verify(clientRepository).findAll();
 		assertThat(expectedId).isEqualTo(foundId);
-		assertThat(expectedClients).isEqualTo(foundClients);
+		assertThat(clientDTOS).isEqualTo(foundClients.getBody().getData());
+	}
+
+	@Test
+	void findAllClientsNoContentTest() {
+		given(clientRepository.findAll()).willReturn(Collections.emptyList());
+
+		final ResponseEntity<Data<List<ClientDTO>>> foundClients = clientService.findAllClients();
+
+		verify(clientRepository).findAll();
+		assertThat(foundClients.getBody()).isNull();
+		assertThat(foundClients.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 	}
 
 	@Test
