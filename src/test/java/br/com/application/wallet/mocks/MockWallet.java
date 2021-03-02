@@ -24,6 +24,11 @@ public class MockWallet {
 				.expenses(new ArrayList<>()).build();
 	}
 
+	public static Wallet mockSingleWalletWithExpenses(final Long id, final List<Expense> expensesList) {
+		return Wallet.builder().id(id).description("carteira principal").balance(BigDecimal.valueOf(8000))
+				.expenses(expensesList).build();
+	}
+
 	public static Wallet mockSingleWalletWithClosedExpenses(final Long id) {
 		final List<Expense> expenses = MockExpense.mockTwoClosedExpensesList();
 		return Wallet.builder().id(id).description("carteira principal").balance(BigDecimal.valueOf(8000))

@@ -1,7 +1,9 @@
 package br.com.application.wallet.services;
 
+import br.com.application.wallet.handler.exceptions.OpenedExpensesException;
 import br.com.application.wallet.handler.exceptions.WalletNotFoundException;
 import br.com.application.wallet.models.Client;
+import br.com.application.wallet.models.Expense;
 import br.com.application.wallet.models.Wallet;
 import br.com.application.wallet.repositories.WalletRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,127 +17,163 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static br.com.application.wallet.mocks.MockExpense.mockTwoClosedExpensesList;
+import static br.com.application.wallet.mocks.MockExpense.mockTwoOpenedExpensesList;
 import static br.com.application.wallet.mocks.MockWallet.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 public class WalletServiceTest {
 
-	@InjectMocks
-	private WalletService walletService;
+    @InjectMocks
+    private WalletService walletService;
 
-	@Mock
-	private WalletRepository walletRepository;
+    @Mock
+    private WalletRepository walletRepositoryMock;
 
-	@Mock
-	private ClientService clientService;
+    @Mock
+    private ClientService clientServiceMock;
 
-	@BeforeEach
-	void setup() {
-		MockitoAnnotations.initMocks(this);
-	}
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.initMocks(this);
+    }
 
-	@Test
-	void shouldReturnWalletByIdTest() {
-		Wallet wallet = mockSingleWallet(1L, Collections.emptyList());
+    @Test
+    void shouldReturnWalletByIdTest() {
+        Wallet wallet = mockSingleWallet(1L, Collections.emptyList());
 
-		given(walletRepository.findById(any(Long.class))).willReturn(Optional.of(wallet));
+        given(walletRepositoryMock.findById(any(Long.class))).willReturn(Optional.of(wallet));
 
-		final Wallet foundWallet = walletService.findWalletById(1L);
+        final Wallet foundWallet = walletService.findWalletById(1L);
 
-		assertThat(foundWallet).isEqualTo(wallet);
-	}
+        assertThat(foundWallet).isEqualTo(wallet);
+    }
 
-/*	@Test
-	void shouldInstantiateExpensesListForAGivenWalletTest() {
-		Wallet wallet = new Wallet();
-		wallet.setExpenses(null);
+    @Test
+    void shouldThrowAnExceptionWhenWalletNotFoundByIdTest() {
+        given(walletRepositoryMock.findById(any(Long.class))).willReturn(Optional.empty());
 
-		given(walletRepository.findById(any(Long.class))).willReturn(Optional.of(wallet));
+        assertThrows(WalletNotFoundException.class, () -> walletService.findWalletById(1L));
+    }
 
-		final Wallet foundWallet = walletService.findWalletById(1L);
+    @Test
+    void shouldReturnAListOfWalletsTest() {
+        Wallet wallet1 = mockSingleWalletWithOpenedExpenses(1L);
+        Wallet wallet2 = mockSingleWalletWithClosedExpenses(2L);
+        final List<Wallet> wallets = Arrays.asList(wallet1, wallet2);
 
-		assertThat(wallet.getExpenses()).isNull();
-		assertThat(foundWallet.getExpenses()).isNotNull();
-	}*/
+        given(walletRepositoryMock.findAll()).willReturn(wallets);
 
-	@Test
-	void shouldThrowAnExceptionWhenWalletNotFoundByIdTest() {
-		given(walletRepository.findById(any(Long.class))).willReturn(Optional.empty());
+        final List<Wallet> allWallets = walletService.findAllWallets();
 
-		assertThrows(WalletNotFoundException.class, () -> walletService.findWalletById(1L));
-	}
+        assertThat(allWallets).isEqualTo(wallets);
+    }
 
-	@Test
-	void shouldReturnAListOfWalletsTest() {
-		Wallet wallet1 = mockSingleWalletWithOpenedExpenses(1L);
-		Wallet wallet2 = mockSingleWalletWithClosedExpenses(2L);
-		final List<Wallet> wallets = Arrays.asList(wallet1, wallet2);
+    @Test
+    void shouldReturnAnEmptyListOfWalletsTest() {
+        given(walletRepositoryMock.findAll()).willReturn(Collections.emptyList());
 
-		given(walletRepository.findAll()).willReturn(wallets);
+        final List<Wallet> allWallets = walletService.findAllWallets();
 
-		final List<Wallet> allWallets = walletService.findAllWallets();
+        assertThat(allWallets).isEmpty();
+    }
 
-		assertThat(allWallets).isEqualTo(wallets);
-	}
+    @Test
+    void shouldSaveAWalletTest() {
+        Wallet wallet = mockSingleWallet(1L);
+        Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
+                .telephoneNumber("48 0 0000-0000").build();
 
-	@Test
-	void shouldReturnAnEmptyListOfWalletsTest() {
-		given(walletRepository.findAll()).willReturn(Collections.emptyList());
+        given(clientServiceMock.findClientById(1L)).willReturn(client);
+        given(walletRepositoryMock.save(any(Wallet.class))).willReturn(wallet);
 
-		final List<Wallet> allWallets = walletService.findAllWallets();
+        final Wallet savedWallet = walletService.saveWallet(1L, wallet);
 
-		assertThat(allWallets).isEmpty();
-	}
+        verify(walletRepositoryMock).save(wallet);
+        assertThat(wallet).isEqualTo(savedWallet);
+    }
 
-	@Test
-	void shouldSaveAWalletTest() {
-		Wallet wallet = mockSingleWallet(1L);
-		Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
-				.telephoneNumber("48 0 0000-0000").build();
+    @Test
+    void shouldCreateAnEmptyListOfExpensesForWalletTest() {
+        final Wallet walletMock = mockSingleWallet(1L);
+        walletMock.setExpenses(null);
 
-		given(clientService.findClientById(1L)).willReturn(client);
-		given(walletRepository.save(any(Wallet.class))).willReturn(wallet);
+        given(walletRepositoryMock.findById(any(Long.class))).willReturn(Optional.of(walletMock));
 
-		final Wallet savedWallet = walletService.saveWallet(1L, wallet);
+        final Wallet wallet = walletService.findWalletById(1L);
 
-		verify(walletRepository).save(wallet);
-		assertThat(wallet).isEqualTo(savedWallet);
-	}
+        assertThat(wallet.getExpenses()).isNotNull();
+        assertThat(wallet.getExpenses()).isEmpty();
+    }
 
-	@Test
-	void shouldThrowExceptionWhenTryToSaveNullWalletTest() {
-		assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(1L, null));
-	}
+    @Test
+    void shouldThrowExceptionWhenTryToSaveNullWalletTest() {
+        assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(1L, null));
+    }
 
-	@Test
-	void shouldThrowExceptionWhenTryToSaveWalletWithoutDescriptionTest() {
-		assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(1L, new Wallet()));
-	}
+    @Test
+    void shouldThrowExceptionWhenTryToSaveWalletWithoutDescriptionTest() {
+        assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(1L, new Wallet()));
+    }
 
-	@Test
-	void shouldThrowExceptionWhenClientIdIsNullTest() {
-		Wallet wallet = mockSingleWallet(1L);
-		assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(null, wallet));
-	}
+    @Test
+    void shouldThrowExceptionWhenClientIdIsNullTest() {
+        Wallet wallet = mockSingleWallet(1L);
+        assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(null, wallet));
+    }
 
-	@Test
-	void shouldCreateNewListOfWalletsForClientTest() {
-		Wallet wallet = mockSingleWallet(1L);
-		Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
-				.telephoneNumber("48 0 0000-0000").wallets(null).build();
+    @Test
+    void shouldCreateNewListOfWalletsForClientTest() {
+        Wallet wallet = mockSingleWallet(1L);
+        Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
+                .telephoneNumber("48 0 0000-0000").wallets(null).build();
 
-		given(clientService.findClientById(1L)).willReturn(client);
-		given(walletRepository.save(any(Wallet.class))).willReturn(wallet);
+        given(clientServiceMock.findClientById(1L)).willReturn(client);
+        given(walletRepositoryMock.save(any(Wallet.class))).willReturn(wallet);
 
-		final Wallet savedWallet = walletService.saveWallet(1L, wallet);
+        final Wallet savedWallet = walletService.saveWallet(1L, wallet);
 
-		assertThat(wallet).isEqualTo(savedWallet);
-		assertThat(client.getWallets()).isNotNull();
-		assertThat(client.getWallets()).containsOnly(wallet);
-	}
+        assertThat(wallet).isEqualTo(savedWallet);
+        assertThat(client.getWallets()).isNotNull();
+        assertThat(client.getWallets()).containsOnly(wallet);
+    }
 
+    @Test
+    void shouldThrowExceptionForDuplicateWalletSaveTest() {
+        final List<Expense> expenses = mockTwoClosedExpensesList();
+        final Wallet wallet = mockSingleWalletWithExpenses(1L, expenses);
+        final Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
+                .telephoneNumber("48 0 0000-0000").wallets(Collections.singletonList(wallet)).build();
+
+        given(clientServiceMock.findClientById(any(Long.class))).willReturn(client);
+
+        assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(1L, wallet));
+    }
+
+    @Test
+    void shouldDeleteWalletWithClosedExpensesTest() {
+        final List<Expense> expenses = mockTwoClosedExpensesList();
+        final Wallet wallet = mockSingleWalletWithExpenses(1L, expenses);
+
+        given(walletRepositoryMock.findById(1L)).willReturn(Optional.of(wallet));
+
+        final boolean wasDeleted = walletService.deleteWallet(1L);
+
+        assertTrue(wasDeleted);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDeleteWalletWithOpenedExpensesTest() {
+        final List<Expense> expenses = mockTwoOpenedExpensesList();
+        final Wallet wallet = mockSingleWalletWithExpenses(1L, expenses);
+
+        given(walletRepositoryMock.findById(1L)).willReturn(Optional.of(wallet));
+
+        assertThrows(OpenedExpensesException.class, () -> walletService.deleteWallet(1L));
+    }
 }

@@ -44,9 +44,6 @@ public class WalletService {
 	public boolean deleteWallet(final Long id) {
 		final Wallet wallet = this.findWalletById(id);
 
-		if(Objects.isNull(wallet.getExpenses()) || wallet.getExpenses().isEmpty())
-			throw new WalletNotFoundException("Carteira, id: {" + id +"} sem despesas.");
-
 		if (hasOpenedExpensesInWallet(wallet))
 			throw new OpenedExpensesException("Carteira, id: {" + id + "} possui despesas em aberto");
 
