@@ -5,12 +5,17 @@ import br.com.application.wallet.handler.exceptions.WalletNotFoundException;
 import br.com.application.wallet.models.Client;
 import br.com.application.wallet.models.Expense;
 import br.com.application.wallet.models.Wallet;
+import br.com.application.wallet.models.api.Data;
+import br.com.application.wallet.models.dto.WalletDTO;
+import br.com.application.wallet.models.dto.form.WalletForm;
 import br.com.application.wallet.repositories.WalletRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -89,13 +94,20 @@ public class WalletServiceTest {
         Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
                 .telephoneNumber("48 0 0000-0000").build();
 
+        WalletDTO outputDto = new WalletDTO(wallet);
+        WalletForm inputDto = new WalletForm(wallet.getDescription(), wallet.getBalance());
+
         given(clientServiceMock.findClientById(1L)).willReturn(client);
-        given(walletRepositoryMock.save(any(Wallet.class))).willReturn(wallet);
+        given(walletRepositoryMock.save(any())).willReturn(wallet);
 
-        final Wallet savedWallet = walletService.saveWallet(1L, wallet);
+        ResponseEntity<Data<WalletDTO>> response = walletService.saveWallet(1L, inputDto);
 
-        verify(walletRepositoryMock).save(wallet);
-        assertThat(wallet).isEqualTo(savedWallet);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getData()).isEqualTo(outputDto);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        verify(walletRepositoryMock).save(any());
+        verify(clientServiceMock).findClientById(1L);
     }
 
     @Test
@@ -112,22 +124,6 @@ public class WalletServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenTryToSaveNullWalletTest() {
-        assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(1L, null));
-    }
-
-    @Test
-    void shouldThrowExceptionWhenTryToSaveWalletWithoutDescriptionTest() {
-        assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(1L, new Wallet()));
-    }
-
-    @Test
-    void shouldThrowExceptionWhenClientIdIsNullTest() {
-        Wallet wallet = mockSingleWallet(1L);
-        assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(null, wallet));
-    }
-
-    @Test
     void shouldCreateNewListOfWalletsForClientTest() {
         Wallet wallet = mockSingleWallet(1L);
         Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
@@ -136,23 +132,11 @@ public class WalletServiceTest {
         given(clientServiceMock.findClientById(1L)).willReturn(client);
         given(walletRepositoryMock.save(any(Wallet.class))).willReturn(wallet);
 
-        final Wallet savedWallet = walletService.saveWallet(1L, wallet);
+        WalletForm walletForm = new WalletForm(wallet.getDescription(), wallet.getBalance());
+        final ResponseEntity<Data<WalletDTO>> dataResponseEntity = walletService.saveWallet(1L, walletForm);
 
-        assertThat(wallet).isEqualTo(savedWallet);
         assertThat(client.getWallets()).isNotNull();
         assertThat(client.getWallets()).containsOnly(wallet);
-    }
-
-    @Test
-    void shouldThrowExceptionForDuplicateWalletSaveTest() {
-        final List<Expense> expenses = mockTwoClosedExpensesList();
-        final Wallet wallet = mockSingleWalletWithExpenses(1L, expenses);
-        final Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
-                .telephoneNumber("48 0 0000-0000").wallets(Collections.singletonList(wallet)).build();
-
-        given(clientServiceMock.findClientById(any(Long.class))).willReturn(client);
-
-        assertThrows(IllegalArgumentException.class, () -> walletService.saveWallet(1L, wallet));
     }
 
     @Test

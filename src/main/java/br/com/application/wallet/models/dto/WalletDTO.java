@@ -3,6 +3,7 @@ package br.com.application.wallet.models.dto;
 import br.com.application.wallet.models.Wallet;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.math.BigDecimal;
@@ -10,6 +11,7 @@ import java.util.Objects;
 
 @Getter
 @AllArgsConstructor
+@EqualsAndHashCode
 public class WalletDTO {
 
 	@JsonProperty("wallet_id")
@@ -24,7 +26,7 @@ public class WalletDTO {
 	@JsonProperty("has_expenses_flag")
 	private final Boolean hasExpensesFlag;
 
-	public WalletDTO(Wallet wallet) {
+	public WalletDTO(final Wallet wallet) {
 		this.id = wallet.getId();
 		this.description = wallet.getDescription();
 		this.balance = wallet.getBalance();
