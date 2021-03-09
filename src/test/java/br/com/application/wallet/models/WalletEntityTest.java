@@ -4,11 +4,11 @@ import org.junit.jupiter.api.Test;
 
 import static pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsFor;
 
-public class WalletTest {
+public class WalletEntityTest {
 
 	@Test
 	void allWalletMethodsWellImplementedTest() {
-		final Class<Wallet> walletClass = Wallet.class;
+		final Class<WalletEntity> walletClass = WalletEntity.class;
 
 		assertPojoMethodsFor(walletClass).areWellImplemented();
 	}

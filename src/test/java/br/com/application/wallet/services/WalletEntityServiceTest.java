@@ -2,9 +2,9 @@ package br.com.application.wallet.services;
 
 import br.com.application.wallet.handler.exceptions.OpenedExpensesException;
 import br.com.application.wallet.handler.exceptions.WalletNotFoundException;
-import br.com.application.wallet.models.Client;
-import br.com.application.wallet.models.Expense;
-import br.com.application.wallet.models.Wallet;
+import br.com.application.wallet.models.ClientEntity;
+import br.com.application.wallet.models.ExpenseEntity;
+import br.com.application.wallet.models.WalletEntity;
 import br.com.application.wallet.models.api.Data;
 import br.com.application.wallet.models.dto.WalletDTO;
 import br.com.application.wallet.models.dto.form.WalletForm;
@@ -32,7 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
-public class WalletServiceTest {
+public class WalletEntityServiceTest {
 
     @InjectMocks
     private WalletService walletService;
@@ -50,7 +50,7 @@ public class WalletServiceTest {
 
     @Test
     void shouldReturnWalletByIdTest() {
-        Wallet wallet = mockSingleWallet(1L, Collections.emptyList());
+        WalletEntity wallet = mockSingleWallet(1L, Collections.emptyList());
 
         WalletDTO outputDto = new WalletDTO(wallet);
 
@@ -72,13 +72,13 @@ public class WalletServiceTest {
 
     @Test
     void shouldReturnAListOfWalletsTest() {
-        Wallet wallet1 = mockSingleWalletWithOpenedExpenses(1L);
-        Wallet wallet2 = mockSingleWalletWithClosedExpenses(2L);
-        final List<Wallet> wallets = Arrays.asList(wallet1, wallet2);
+        WalletEntity wallet1 = mockSingleWalletWithOpenedExpenses(1L);
+        WalletEntity wallet2 = mockSingleWalletWithClosedExpenses(2L);
+        final List<WalletEntity> wallets = Arrays.asList(wallet1, wallet2);
 
         given(walletRepositoryMock.findAll()).willReturn(wallets);
 
-        final List<Wallet> allWallets = walletService.findAllWallets();
+        final List<WalletEntity> allWallets = walletService.findAllWallets();
 
         assertThat(allWallets).isEqualTo(wallets);
     }
@@ -87,15 +87,15 @@ public class WalletServiceTest {
     void shouldReturnAnEmptyListOfWalletsTest() {
         given(walletRepositoryMock.findAll()).willReturn(Collections.emptyList());
 
-        final List<Wallet> allWallets = walletService.findAllWallets();
+        final List<WalletEntity> allWallets = walletService.findAllWallets();
 
         assertThat(allWallets).isEmpty();
     }
 
     @Test
     void shouldSaveAWalletTest() {
-        Wallet wallet = mockSingleWallet(1L);
-        Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
+        WalletEntity wallet = mockSingleWallet(1L);
+        ClientEntity client = ClientEntity.builder().id(1L).name("First Client").cpf("531.521.400-10")
                 .telephoneNumber("48 0 0000-0000").build();
 
         WalletDTO outputDto = new WalletDTO(wallet);
@@ -116,12 +116,12 @@ public class WalletServiceTest {
 
     @Test
     void shouldCreateNewListOfWalletsForClientTest() {
-        Wallet wallet = mockSingleWallet(1L);
-        Client client = Client.builder().id(1L).name("First Client").cpf("531.521.400-10")
+        WalletEntity wallet = mockSingleWallet(1L);
+        ClientEntity client = ClientEntity.builder().id(1L).name("First Client").cpf("531.521.400-10")
                 .telephoneNumber("48 0 0000-0000").wallets(null).build();
 
         given(clientServiceMock.findClientById(1L)).willReturn(client);
-        given(walletRepositoryMock.save(any(Wallet.class))).willReturn(wallet);
+        given(walletRepositoryMock.save(any(WalletEntity.class))).willReturn(wallet);
 
         WalletForm walletForm = new WalletForm(wallet.getDescription(), wallet.getBalance());
         final ResponseEntity<Data<WalletDTO>> dataResponseEntity = walletService.saveWallet(1L, walletForm);
@@ -132,7 +132,7 @@ public class WalletServiceTest {
 
     @Test
     void shouldDeleteWalletWithClosedExpensesTest() {
-        final Wallet wallet = mockSingleWallet(1L);
+        final WalletEntity wallet = mockSingleWallet(1L);
         wallet.getExpenses().clear();
 
         given(walletRepositoryMock.findById(1L)).willReturn(Optional.of(wallet));
@@ -144,7 +144,7 @@ public class WalletServiceTest {
 
     @Test
     void shouldDeleteWalletWithNullExpensesTest() {
-        final Wallet wallet = mockSingleWallet(1L);
+        final WalletEntity wallet = mockSingleWallet(1L);
         wallet.setExpenses(null);
 
         given(walletRepositoryMock.findById(1L)).willReturn(Optional.of(wallet));
@@ -156,8 +156,8 @@ public class WalletServiceTest {
 
     @Test
     void shouldDeleteWalletWithNoExpensesTest() {
-        final List<Expense> expenses = mockTwoClosedExpensesList();
-        final Wallet wallet = mockSingleWalletWithExpenses(1L, expenses);
+        final List<ExpenseEntity> expenses = mockTwoClosedExpensesList();
+        final WalletEntity wallet = mockSingleWalletWithExpenses(1L, expenses);
 
         given(walletRepositoryMock.findById(1L)).willReturn(Optional.of(wallet));
 
@@ -168,8 +168,8 @@ public class WalletServiceTest {
 
     @Test
     void shouldThrowExceptionWhenDeleteWalletWithOpenedExpensesTest() {
-        final List<Expense> expenses = mockTwoOpenedExpensesList();
-        final Wallet wallet = mockSingleWalletWithExpenses(1L, expenses);
+        final List<ExpenseEntity> expenses = mockTwoOpenedExpensesList();
+        final WalletEntity wallet = mockSingleWalletWithExpenses(1L, expenses);
 
         given(walletRepositoryMock.findById(1L)).willReturn(Optional.of(wallet));
 

@@ -1,6 +1,6 @@
 package br.com.application.wallet.controllers;
 
-import br.com.application.wallet.models.Client;
+import br.com.application.wallet.models.ClientEntity;
 import br.com.application.wallet.models.api.Data;
 import br.com.application.wallet.models.dto.*;
 import br.com.application.wallet.models.dto.form.ClientForm;
@@ -24,19 +24,19 @@ public class ClientController {
     @GetMapping("/{id_client}/wallets/{id_wallet}")
     public ResponseEntity<ClientWalletExpensesDTO> findClientWithWalletExpenses(
             @PathVariable("id_client") final Long idClient, @PathVariable("id_wallet") final Long idWallet) {
-        final Client client = clientService.findClientById(idClient);
+        final ClientEntity client = clientService.findClientById(idClient);
         return ResponseEntity.ok(new ClientWalletExpensesDTO(client, idWallet));
     }
 
     @GetMapping("/{id_client}/wallets")
     public ResponseEntity<ClientWalletsDTO> findClientWithWallets(@PathVariable("id_client") final Long idClient) {
-        final Client client = clientService.findClientById(idClient);
+        final ClientEntity client = clientService.findClientById(idClient);
         return ResponseEntity.ok(new ClientWalletsDTO(client));
     }
 
     @GetMapping("/{id_client}")
     public ResponseEntity<ClientDTO> findClientById(@PathVariable("id_client") final Long idClient) {
-        Client foundClient = clientService.findClientById(idClient);
+        ClientEntity foundClient = clientService.findClientById(idClient);
         return ResponseEntity.ok().body(new ClientDTO(foundClient));
     }
 
@@ -48,7 +48,7 @@ public class ClientController {
     @PostMapping
     public ResponseEntity<ClientDTO> saveClient(@Valid @RequestBody final ClientForm clientForm,
                                                 final UriComponentsBuilder uriBuilder) {
-        Client client = clientForm.convertFormToClient(clientForm);
+        ClientEntity client = clientForm.convertFormToClient(clientForm);
         clientService.saveClient(client);
 
         URI resourceLocation = uriBuilder.path("/wallet/v1/clients/{id_client}").buildAndExpand(client.getId()).toUri();

@@ -23,7 +23,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Entity
 @Table(name = "EXPENSE")
-public class Expense implements Serializable {
+public class ExpenseEntity implements Serializable {
     private static final long serialVersionUID = 2717526289026820456L;
 
     @Id
@@ -38,15 +38,15 @@ public class Expense implements Serializable {
     @Enumerated(EnumType.STRING)
     private ExpenseType expenseType;
 
-    public Expense(String description, BigDecimal value) {
+    public ExpenseEntity(String description, BigDecimal value) {
         this(description, value, null);
     }
 
-    public Expense(String description, BigDecimal value, ExpenseState expenseState) {
+    public ExpenseEntity(String description, BigDecimal value, ExpenseState expenseState) {
         this(description, value, expenseState, null);
     }
 
-    public Expense(String description, BigDecimal value, ExpenseState expenseState, ExpenseType expenseType) {
+    public ExpenseEntity(String description, BigDecimal value, ExpenseState expenseState, ExpenseType expenseType) {
         this.description = description;
         this.value = value;
         this.expenseState = expenseState;

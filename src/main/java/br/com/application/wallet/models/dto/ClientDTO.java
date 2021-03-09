@@ -1,6 +1,6 @@
 package br.com.application.wallet.models.dto;
 
-import br.com.application.wallet.models.Client;
+import br.com.application.wallet.models.ClientEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -26,14 +26,14 @@ public class ClientDTO {
     @JsonProperty("client_telephone")
     private String telephoneNumber;
 
-    public ClientDTO(Client client) {
+    public ClientDTO(ClientEntity client) {
         this.id = client.getId();
         this.name = client.getName();
         this.cpf = client.getCpf();
         this.telephoneNumber = client.getTelephoneNumber();
     }
 
-    public static List<ClientDTO> convertListToDTO(final List<Client> clientList) {
+    public static List<ClientDTO> convertListToDTO(final List<ClientEntity> clientList) {
         return clientList.stream().map(ClientDTO::new).collect(Collectors.toList());
     }
 

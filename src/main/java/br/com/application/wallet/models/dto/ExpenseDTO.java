@@ -1,6 +1,6 @@
 package br.com.application.wallet.models.dto;
 
-import br.com.application.wallet.models.Expense;
+import br.com.application.wallet.models.ExpenseEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,7 +26,7 @@ public class ExpenseDTO {
 	@JsonProperty("expense_type")
 	private final String expenseType;
 
-	public ExpenseDTO(Expense expense) {
+	public ExpenseDTO(ExpenseEntity expense) {
 		this.id = expense.getId();
 		this.description = expense.getDescription();
 		this.value = expense.getValue();

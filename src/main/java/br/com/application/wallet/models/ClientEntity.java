@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "CLIENT")
-public class Client implements Serializable {
+public class ClientEntity implements Serializable {
 	private static final long serialVersionUID = 8607100025462907728L;
 
 	@Id
@@ -31,16 +31,16 @@ public class Client implements Serializable {
 
 	@OneToMany
 	@JoinColumn(name = "client_id")
-	private List<Wallet> wallets = new ArrayList<>();
+	private List<WalletEntity> wallets = new ArrayList<>();
 
-	public Client(String name, String cpf, String telephoneNumber) {
+	public ClientEntity(String name, String cpf, String telephoneNumber) {
 		this.name = name;
 		this.cpf = cpf;
 		this.telephoneNumber = telephoneNumber;
 		this.wallets = new ArrayList<>();
 	}
 
-	public Client(String name, String cpf, String telephoneNumber, Wallet wallet) {
+	public ClientEntity(String name, String cpf, String telephoneNumber, WalletEntity wallet) {
 		this.name = name;
 		this.cpf = cpf;
 		this.telephoneNumber = telephoneNumber;

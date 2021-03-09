@@ -1,8 +1,8 @@
 package br.com.application.wallet.models.dto;
 
 import br.com.application.wallet.handler.exceptions.WalletNotFoundException;
-import br.com.application.wallet.models.Client;
-import br.com.application.wallet.models.Wallet;
+import br.com.application.wallet.models.ClientEntity;
+import br.com.application.wallet.models.WalletEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,23 +30,23 @@ public class ClientWalletExpensesDTO {
 	@JsonProperty("wallet_expenses")
 	private final List<ExpenseDTO> expensesDtoList;
 
-	public ClientWalletExpensesDTO(final Client client, final Long walletId) {
+	public ClientWalletExpensesDTO(final ClientEntity client, final Long walletId) {
 		this.clientId = client.getId();
 		this.clientName = client.getName();
 		this.walletId = walletId;
 
-		final Wallet wallet = getClientWalletById(client, walletId);
+		final WalletEntity wallet = getClientWalletById(client, walletId);
 		this.walletDescription = wallet.getDescription();
 		this.expensesDtoList = turnWalletExpensesListToExpensesDTOList(wallet);
 	}
 
-	private Wallet getClientWalletById(final Client client, final Long walletId) {
-		final Optional<Wallet> first = client.getWallets().stream().filter(wallet1 -> wallet1.getId().equals(walletId))
+	private WalletEntity getClientWalletById(final ClientEntity client, final Long walletId) {
+		final Optional<WalletEntity> first = client.getWallets().stream().filter(wallet1 -> wallet1.getId().equals(walletId))
 				.findFirst();
 		return first.orElseThrow(() -> new WalletNotFoundException("Carteira não encontrada, id: " + walletId));
 	}
 
-	private List<ExpenseDTO> turnWalletExpensesListToExpensesDTOList(final Wallet wallet) {
+	private List<ExpenseDTO> turnWalletExpensesListToExpensesDTOList(final WalletEntity wallet) {
 		return wallet.getExpenses().stream().map(ExpenseDTO::new).collect(Collectors.toList());
 	}
 

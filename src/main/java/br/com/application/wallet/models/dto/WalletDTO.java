@@ -1,6 +1,6 @@
 package br.com.application.wallet.models.dto;
 
-import br.com.application.wallet.models.Wallet;
+import br.com.application.wallet.models.WalletEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -26,14 +26,14 @@ public class WalletDTO {
 	@JsonProperty("has_expenses_flag")
 	private final Boolean hasExpensesFlag;
 
-	public WalletDTO(final Wallet wallet) {
+	public WalletDTO(final WalletEntity wallet) {
 		this.id = wallet.getId();
 		this.description = wallet.getDescription();
 		this.balance = wallet.getBalance();
 		this.hasExpensesFlag = setExpensesFlag(wallet);
 	}
 
-	private Boolean setExpensesFlag(final Wallet wallet ) {
+	private Boolean setExpensesFlag(final WalletEntity wallet ) {
 		return Objects.nonNull(wallet.getExpenses()) && wallet.getExpenses().size() > 0;
 	}
 }

@@ -3,8 +3,8 @@ package br.com.application.wallet.services;
 import br.com.application.wallet.handler.exceptions.ClientNotFoundException;
 import br.com.application.wallet.handler.exceptions.DuplicateDocumentException;
 import br.com.application.wallet.handler.exceptions.OpenedExpensesException;
-import br.com.application.wallet.models.Client;
-import br.com.application.wallet.models.Wallet;
+import br.com.application.wallet.models.ClientEntity;
+import br.com.application.wallet.models.WalletEntity;
 import br.com.application.wallet.models.api.Data;
 import br.com.application.wallet.models.dto.ClientDTO;
 import br.com.application.wallet.models.enums.ExpenseState;
@@ -27,8 +27,8 @@ public class ClientService {
 	@Autowired
 	private ClientRepository clientRepository;
 
-	public Client findClientById(final Long id) {
-		Optional<Client> client = clientRepository.findById(id);
+	public ClientEntity findClientById(final Long id) {
+		Optional<ClientEntity> client = clientRepository.findById(id);
 
 		if (client.isPresent()) {
 			if (Objects.isNull(client.get().getWallets())) {
@@ -41,7 +41,7 @@ public class ClientService {
 	}
 
 	public ResponseEntity<Data<List<ClientDTO>>> findAllClients() {
-		final List<Client> clientList = clientRepository.findAll();
+		final List<ClientEntity> clientList = clientRepository.findAll();
 
 		if(clientList.isEmpty())
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -61,7 +61,7 @@ public class ClientService {
 		return true;
 	}
 
-	public Client changeClient(final Client client) {
+	public ClientEntity changeClient(final ClientEntity client) {
 		if (Objects.isNull(client) || Objects.isNull(client.getName()) || Objects.isNull(client.getCpf()) || Objects
 				.isNull(client.getTelephoneNumber())) {
 			throw new IllegalArgumentException("Cliente inválido");
@@ -70,7 +70,7 @@ public class ClientService {
 		return clientRepository.save(client);
 	}
 
-	public Client saveClient(final Client client) {
+	public ClientEntity saveClient(final ClientEntity client) {
 		try {
 			return clientRepository.save(client);
 		} catch (DataIntegrityViolationException exception) {
@@ -83,7 +83,7 @@ public class ClientService {
 	 * @return true se algum wallet do cliente possuir pelo menos uma despesa em aberto(OPEN).
 	 */
 	private boolean checkClientOpenedExpensesBeforeDelete(final Long id) {
-		Client client = this.findClientById(id);
+		ClientEntity client = this.findClientById(id);
 
 		List<Boolean> collect = client.getWallets().stream().map(this::checkWalletOpenedExpenses)
 				.collect(Collectors.toUnmodifiableList());
@@ -95,7 +95,7 @@ public class ClientService {
 	 * @param wallet
 	 * @return true se o wallet possuir pelo menos uma despesa em aberto(OPEN).
 	 */
-	private boolean checkWalletOpenedExpenses(final Wallet wallet) {
+	private boolean checkWalletOpenedExpenses(final WalletEntity wallet) {
 		if (Objects.isNull(wallet.getExpenses()) || wallet.getExpenses().isEmpty())
 			return false;
 

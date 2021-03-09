@@ -1,6 +1,5 @@
 package br.com.application.wallet.models.dto.form;
 
-import br.com.application.wallet.models.Wallet;
 import br.com.application.wallet.models.api.ErrorMessage;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

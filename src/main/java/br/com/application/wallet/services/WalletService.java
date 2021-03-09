@@ -2,11 +2,10 @@ package br.com.application.wallet.services;
 
 import br.com.application.wallet.handler.exceptions.OpenedExpensesException;
 import br.com.application.wallet.handler.exceptions.WalletNotFoundException;
-import br.com.application.wallet.models.Client;
-import br.com.application.wallet.models.Expense;
-import br.com.application.wallet.models.Wallet;
+import br.com.application.wallet.models.ClientEntity;
+import br.com.application.wallet.models.ExpenseEntity;
+import br.com.application.wallet.models.WalletEntity;
 import br.com.application.wallet.models.api.Data;
-import br.com.application.wallet.models.dto.ClientDTO;
 import br.com.application.wallet.models.dto.WalletDTO;
 import br.com.application.wallet.models.dto.form.WalletForm;
 import br.com.application.wallet.models.enums.ExpenseState;
@@ -31,7 +30,7 @@ public class WalletService {
     private ClientService clientService;
 
     public ResponseEntity<Data<WalletDTO>> findWalletById(final Long id) {
-        Wallet wallet = walletRepository.findById(id)
+        WalletEntity wallet = walletRepository.findById(id)
                 .orElseThrow(() -> new WalletNotFoundException("Carteira, id: {" + id + "} não encontrada"));
 
         if (Objects.isNull(wallet.getExpenses()))
@@ -40,12 +39,12 @@ public class WalletService {
         return new ResponseEntity<>(new Data<>(new WalletDTO(wallet)), HttpStatus.OK);
     }
 
-    public List<Wallet> findAllWallets() {
+    public List<WalletEntity> findAllWallets() {
         return walletRepository.findAll();
     }
 
     public boolean deleteWallet(final Long id) {
-        final Wallet wallet = walletRepository.findById(id)
+        final WalletEntity wallet = walletRepository.findById(id)
                 .orElseThrow(() -> new WalletNotFoundException("Carteira, id: {" + id + "} não encontrada"));
 
         if (Objects.isNull(wallet.getExpenses()) || wallet.getExpenses().isEmpty()) {
@@ -62,12 +61,12 @@ public class WalletService {
 
     public ResponseEntity<Data<WalletDTO>> saveWallet(final Long clientId, final WalletForm form) {
 
-        final Client client = clientService.findClientById(clientId);
+        final ClientEntity client = clientService.findClientById(clientId);
 
         if (Objects.isNull(client.getWallets()))
             client.setWallets(new ArrayList<>());
 
-        final Wallet wallet = walletRepository.save(Wallet.builder()
+        final WalletEntity wallet = walletRepository.save(WalletEntity.builder()
                 .description(form.getDescription())
                 .balance(form.getBalance())
                 .expenses(new ArrayList<>())
@@ -78,9 +77,9 @@ public class WalletService {
         return new ResponseEntity<>(new Data<>(new WalletDTO(wallet)), HttpStatus.CREATED);
     }
 
-    private boolean hasOpenedExpensesInWallet(final Wallet wallet) {
-        final List<Expense> expenses = wallet.getExpenses();
-        final Optional<Expense> first = expenses.stream()
+    private boolean hasOpenedExpensesInWallet(final WalletEntity wallet) {
+        final List<ExpenseEntity> expenses = wallet.getExpenses();
+        final Optional<ExpenseEntity> first = expenses.stream()
                 .filter(expense -> expense.getExpenseState().equals(ExpenseState.OPEN)).findFirst();
         return first.isPresent();
     }

@@ -23,7 +23,7 @@ import java.util.List;
 @EqualsAndHashCode
 @Entity
 @Table(name = "WALLET")
-public class Wallet implements Serializable {
+public class WalletEntity implements Serializable {
     private static final long serialVersionUID = -7080509259541108742L;
 
     @Id
@@ -34,21 +34,21 @@ public class Wallet implements Serializable {
 
     @OneToMany
     @JoinColumn(name = "wallet_id")
-    private List<Expense> expenses = new ArrayList<>();
+    private List<ExpenseEntity> expenses = new ArrayList<>();
 
-    public Wallet(String description) {
+    public WalletEntity(String description) {
         this.description = description;
         this.balance = BigDecimal.ZERO;
         this.expenses = new ArrayList<>();
     }
 
-    public Wallet(String description, BigDecimal balance) {
+    public WalletEntity(String description, BigDecimal balance) {
         this.description = description;
         this.balance = balance;
         this.expenses = new ArrayList<>();
     }
 
-    public Wallet(String description, BigDecimal balance, List<Expense> expenses) {
+    public WalletEntity(String description, BigDecimal balance, List<ExpenseEntity> expenses) {
         this.description = description;
         this.balance = balance;
         this.expenses = expenses;

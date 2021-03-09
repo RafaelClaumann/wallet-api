@@ -17,6 +17,11 @@ public class WalletController {
     @Autowired
     private WalletService walletService;
 
+    @GetMapping("/{id_wallet}")
+    public ResponseEntity<Data<WalletDTO>> findWalletById(@PathVariable("id_wallet") final Long idWallet) {
+        return walletService.findWalletById(idWallet);
+    }
+
     @PostMapping("/{id_client}")
     public ResponseEntity<Data<WalletDTO>> saveWallet(
             @PathVariable("id_client") Long idClient,
@@ -24,4 +29,5 @@ public class WalletController {
 
         return walletService.saveWallet(idClient, walletForm);
     }
+
 }

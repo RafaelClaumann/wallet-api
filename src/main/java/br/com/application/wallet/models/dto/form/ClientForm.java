@@ -1,6 +1,6 @@
 package br.com.application.wallet.models.dto.form;
 
-import br.com.application.wallet.models.Client;
+import br.com.application.wallet.models.ClientEntity;
 import br.com.application.wallet.models.api.ErrorMessage;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -28,8 +28,8 @@ public class ClientForm {
 	@Size(min = 10, max = 15, message = "insira um DDD + Telefone")
 	private String telephoneNumber;
 
-	public Client convertFormToClient(ClientForm form) {
-		return Client.builder().name(form.getName()).cpf(form.getCpf()).telephoneNumber(form.getTelephoneNumber())
+	public ClientEntity convertFormToClient(ClientForm form) {
+		return ClientEntity.builder().name(form.getName()).cpf(form.getCpf()).telephoneNumber(form.getTelephoneNumber())
 				.build();
 	}
 }

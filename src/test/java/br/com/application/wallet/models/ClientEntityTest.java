@@ -4,11 +4,11 @@ import org.junit.jupiter.api.Test;
 
 import static pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsFor;
 
-public class ClientTest {
+public class ClientEntityTest {
 
 	@Test
 	void allClientMethodsWellImplementedTest() {
-		final Class<Client> clientClass = Client.class;
+		final Class<ClientEntity> clientClass = ClientEntity.class;
 
 		assertPojoMethodsFor(clientClass).areWellImplemented();
 	}
