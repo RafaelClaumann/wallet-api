@@ -30,17 +30,14 @@ public class WalletService {
     @Autowired
     private ClientService clientService;
 
-    public Wallet findWalletById(final Long id) {
-        Optional<Wallet> wallet = walletRepository.findById(id);
+    public ResponseEntity<Data<WalletDTO>> findWalletById(final Long id) {
+        Wallet wallet = walletRepository.findById(id)
+                .orElseThrow(() -> new WalletNotFoundException("Carteira, id: {" + id + "} não encontrada"));
 
-        if (wallet.isPresent()) {
-            if (Objects.isNull(wallet.get().getExpenses())) {
-                wallet.get().setExpenses(new ArrayList<>());
-            }
-            return wallet.get();
-        }
+        if (Objects.isNull(wallet.getExpenses()))
+            wallet.setExpenses(new ArrayList<>());
 
-        throw new WalletNotFoundException("Carteira, id: {" + id + "} não encontrada");
+        return new ResponseEntity<>(new Data<>(new WalletDTO(wallet)), HttpStatus.OK);
     }
 
     public List<Wallet> findAllWallets() {
@@ -48,7 +45,13 @@ public class WalletService {
     }
 
     public boolean deleteWallet(final Long id) {
-        final Wallet wallet = this.findWalletById(id);
+        final Wallet wallet = walletRepository.findById(id)
+                .orElseThrow(() -> new WalletNotFoundException("Carteira, id: {" + id + "} não encontrada"));
+
+        if (Objects.isNull(wallet.getExpenses()) || wallet.getExpenses().isEmpty()) {
+            walletRepository.delete(wallet);
+            return true;
+        }
 
         if (hasOpenedExpensesInWallet(wallet))
             throw new OpenedExpensesException("Carteira, id: {" + id + "} possui despesas em aberto");
@@ -72,7 +75,7 @@ public class WalletService {
 
         client.getWallets().add(wallet);
 
-        return new ResponseEntity<>(new Data<>(new WalletDTO(wallet)), HttpStatus.OK);
+        return new ResponseEntity<>(new Data<>(new WalletDTO(wallet)), HttpStatus.CREATED);
     }
 
     private boolean hasOpenedExpensesInWallet(final Wallet wallet) {

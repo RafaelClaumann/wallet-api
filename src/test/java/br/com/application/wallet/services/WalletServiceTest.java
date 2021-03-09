@@ -52,11 +52,15 @@ public class WalletServiceTest {
     void shouldReturnWalletByIdTest() {
         Wallet wallet = mockSingleWallet(1L, Collections.emptyList());
 
+        WalletDTO outputDto = new WalletDTO(wallet);
+
         given(walletRepositoryMock.findById(any(Long.class))).willReturn(Optional.of(wallet));
 
-        final Wallet foundWallet = walletService.findWalletById(1L);
+        final ResponseEntity<Data<WalletDTO>> response = walletService.findWalletById(1L);
 
-        assertThat(foundWallet).isEqualTo(wallet);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getData()).isEqualTo(outputDto);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
@@ -104,23 +108,10 @@ public class WalletServiceTest {
 
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getData()).isEqualTo(outputDto);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
         verify(walletRepositoryMock).save(any());
         verify(clientServiceMock).findClientById(1L);
-    }
-
-    @Test
-    void shouldCreateAnEmptyListOfExpensesForWalletTest() {
-        final Wallet walletMock = mockSingleWallet(1L);
-        walletMock.setExpenses(null);
-
-        given(walletRepositoryMock.findById(any(Long.class))).willReturn(Optional.of(walletMock));
-
-        final Wallet wallet = walletService.findWalletById(1L);
-
-        assertThat(wallet.getExpenses()).isNotNull();
-        assertThat(wallet.getExpenses()).isEmpty();
     }
 
     @Test
@@ -141,6 +132,30 @@ public class WalletServiceTest {
 
     @Test
     void shouldDeleteWalletWithClosedExpensesTest() {
+        final Wallet wallet = mockSingleWallet(1L);
+        wallet.getExpenses().clear();
+
+        given(walletRepositoryMock.findById(1L)).willReturn(Optional.of(wallet));
+
+        final boolean wasDeleted = walletService.deleteWallet(1L);
+
+        assertTrue(wasDeleted);
+    }
+
+    @Test
+    void shouldDeleteWalletWithNullExpensesTest() {
+        final Wallet wallet = mockSingleWallet(1L);
+        wallet.setExpenses(null);
+
+        given(walletRepositoryMock.findById(1L)).willReturn(Optional.of(wallet));
+
+        final boolean wasDeleted = walletService.deleteWallet(1L);
+
+        assertTrue(wasDeleted);
+    }
+
+    @Test
+    void shouldDeleteWalletWithNoExpensesTest() {
         final List<Expense> expenses = mockTwoClosedExpensesList();
         final Wallet wallet = mockSingleWalletWithExpenses(1L, expenses);
 
@@ -160,4 +175,5 @@ public class WalletServiceTest {
 
         assertThrows(OpenedExpensesException.class, () -> walletService.deleteWallet(1L));
     }
+
 }
