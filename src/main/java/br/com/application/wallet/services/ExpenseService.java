@@ -12,13 +12,15 @@ import br.com.application.wallet.repositories.WalletRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Optional;
+import java.net.URI;
+import java.util.*;
 
 @Service
 public class ExpenseService {
@@ -31,29 +33,35 @@ public class ExpenseService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpenseService.class);
 
-    public ResponseEntity<Data<ExpenseEntity>> saveExpense(final Long walletId, final ExpenseForm expenseForm) {
+    public ResponseEntity<Data<ExpenseEntity>> saveExpense(
+            final Long walletId,
+            final ExpenseForm expenseForm,
+            final UriComponentsBuilder uriBuilder,
+            final String resourcePath) {
 
         WalletEntity wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new WalletNotFoundException("Carteira não encontrada"));
 
-        if (Objects.isNull(wallet.getExpenses()) || wallet.getExpenses().isEmpty())
+        if (Objects.isNull(wallet.getExpenses()))
             wallet.setExpenses(new ArrayList<>());
 
-        final Optional<ExpenseType> expenseTypeById = ExpenseType.getExpenseTypeById(expenseForm.getExpenseTypeId());
-        final Optional<ExpenseState> expenseStateById = ExpenseState.getExpenseStateById(expenseForm.getExpenseStateId());
+        final ExpenseType expenseTypeById = ExpenseType.getExpenseTypeById(expenseForm.getExpenseTypeId());
+        final ExpenseState expenseStateById = ExpenseState.getExpenseStateById(expenseForm.getExpenseStateId());
 
         final ExpenseEntity expenseEntity = ExpenseEntity.builder()
                 .description(expenseForm.getDescription())
                 .value(expenseForm.getValue())
-                .expenseType(expenseTypeById.get())
-                .expenseState(expenseStateById.get())
+                .expenseType(expenseTypeById)
+                .expenseState(expenseStateById)
                 .build();
 
-        expenseRepository.save(expenseEntity);
         wallet.getExpenses().add(expenseEntity);
+        expenseRepository.save(expenseEntity);
 
-        LOGGER.info(expenseEntity.toString());
-        LOGGER.info(expenseForm.toString());
-        return new ResponseEntity<>(new Data<>(expenseEntity), HttpStatus.CREATED);
+        URI resourceLocation = uriBuilder.path(resourcePath).buildAndExpand(expenseEntity.getId()).toUri();
+        MultiValueMap<String, String> headers = new HttpHeaders();
+        headers.add("location", resourceLocation.toString());
+
+        return new ResponseEntity<>(new Data<>(expenseEntity), headers, HttpStatus.CREATED);
     }
 }

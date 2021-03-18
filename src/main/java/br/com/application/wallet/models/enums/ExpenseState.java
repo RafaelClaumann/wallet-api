@@ -16,7 +16,7 @@ public enum ExpenseState {
         return this.id;
     }
 
-    public static Optional<ExpenseState> getExpenseStateById(final Integer enumId) {
-        return Arrays.stream(ExpenseState.values()).filter(value -> value.getId() == enumId).findFirst();
+    public static ExpenseState getExpenseStateById(final Integer enumId) {
+        return Arrays.stream(ExpenseState.values()).filter(value -> value.getId() == enumId).findFirst().orElse(OPEN);
     }
 }

@@ -24,7 +24,6 @@ public class WalletForm implements Serializable {
     private String description;
 
     @NotNull(message = ErrorMessage.NOT_NULL_FIELD)
-    @NotEmpty(message = ErrorMessage.NOT_EMPTY_FIELD)
     @Positive(message = ErrorMessage.INVALID_FIELD)
     @JsonProperty("wallet_balance")
     private BigDecimal balance;

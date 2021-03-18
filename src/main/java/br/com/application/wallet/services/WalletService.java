@@ -66,13 +66,16 @@ public class WalletService {
         if (Objects.isNull(client.getWallets()))
             client.setWallets(new ArrayList<>());
 
-        final WalletEntity wallet = walletRepository.save(WalletEntity.builder()
+
+        final WalletEntity wallet = WalletEntity.builder()
                 .description(form.getDescription())
                 .balance(form.getBalance())
                 .expenses(new ArrayList<>())
-                .build());
+                .build();
 
         client.getWallets().add(wallet);
+        walletRepository.save(wallet);
+
 
         return new ResponseEntity<>(new Data<>(new WalletDTO(wallet)), HttpStatus.CREATED);
     }
