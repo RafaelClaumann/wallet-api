@@ -32,7 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
-public class WalletEntityServiceTest {
+public class WalletServiceTest {
 
     @InjectMocks
     private WalletService walletService;
@@ -118,7 +118,7 @@ public class WalletEntityServiceTest {
     void shouldCreateNewListOfWalletsForClientTest() {
         WalletEntity wallet = mockSingleWallet(1L);
         ClientEntity client = ClientEntity.builder().id(1L).name("First Client").cpf("531.521.400-10")
-                .telephoneNumber("48 0 0000-0000").wallets(null).build();
+                .telephoneNumber("48 0 0000-0000").wallet(null).build();
 
         given(clientServiceMock.findClientById(1L)).willReturn(client);
         given(walletRepositoryMock.save(any(WalletEntity.class))).willReturn(wallet);
@@ -126,8 +126,8 @@ public class WalletEntityServiceTest {
         WalletForm walletForm = new WalletForm(wallet.getDescription(), wallet.getBalance());
         final ResponseEntity<Data<WalletDTO>> dataResponseEntity = walletService.saveWallet(1L, walletForm);
 
-        assertThat(client.getWallets()).isNotNull();
-        assertThat(client.getWallets()).containsOnly(wallet);
+        assertThat(client.getWallet()).isNotNull();
+        assertThat(client.getWallet()).isEqualTo(wallet);
     }
 
     @Test

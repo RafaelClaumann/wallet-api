@@ -34,7 +34,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 
-public class ClientEntityServiceTest {
+public class ClientServiceTest {
 
 	@InjectMocks
 	private ClientService clientService;
@@ -98,7 +98,7 @@ public class ClientEntityServiceTest {
 	@Test
 	void deleteClientWithAnEmptyListOfWalletsTest() {
 		ClientEntity client = mockSingleClient(1L);
-		client.setWallets(Collections.emptyList());
+		client.setWallet(new WalletEntity());
 
 		given(clientRepository.findById(any(Long.class))).willReturn(Optional.of(client));
 		doNothing().when(clientRepository).deleteById(any(Long.class));
@@ -111,7 +111,7 @@ public class ClientEntityServiceTest {
 	@Test
 	void deleteClientWithNullListOfWalletsTest() {
 		ClientEntity client = mockSingleClient(1L);
-		client.setWallets(null);
+		client.setWallet(null);
 
 		given(clientRepository.findById(1L)).willReturn(Optional.of(client));
 
@@ -123,7 +123,7 @@ public class ClientEntityServiceTest {
 	@Test
 	void deleteClientPassingNullValueAsExpenseListTest() {
 		ClientEntity client = mockSingleClient(1L);
-		client.getWallets().forEach(wallet -> wallet.setExpenses(null));
+		client.getWallet().setExpenses(null);
 
 		given(clientRepository.findById(1L)).willReturn(Optional.of(client));
 
@@ -135,7 +135,7 @@ public class ClientEntityServiceTest {
 	@Test
 	void deleteClientPassingAnEmptyListAsExpenseListTest() {
 		ClientEntity client = mockSingleClient(1L);
-		client.getWallets().forEach(wallet -> wallet.setExpenses(Collections.emptyList()));
+		client.getWallet().setExpenses(Collections.emptyList());
 
 		given(clientRepository.findById(1L)).willReturn(Optional.of(client));
 
@@ -147,7 +147,7 @@ public class ClientEntityServiceTest {
 	@Test
 	void deleteClientWithWalletContainingOnlyClosedExpensesTest() {
 		WalletEntity wallet = MockWallet.mockSingleWalletWithClosedExpenses(1L);
-		ClientEntity client = ClientEntity.builder().id(1L).name("First Client").wallets(Collections.singletonList(wallet)).build();
+		ClientEntity client = ClientEntity.builder().id(1L).name("First Client").wallet(wallet).build();
 
 		given(clientRepository.findById(1L)).willReturn(Optional.of(client));
 
@@ -160,7 +160,7 @@ public class ClientEntityServiceTest {
 	void shouldThrowExceptionWhenDeleteClientWithOpenExpensesTest() {
 		List<ExpenseEntity> expenses = mockMixedOpenClosedExpensesList();
 		WalletEntity wallet = MockWallet.mockSingleWallet(1L, expenses);
-		ClientEntity client = ClientEntity.builder().id(1L).name("First Client").wallets(Collections.singletonList(wallet)).build();
+		ClientEntity client = ClientEntity.builder().id(1L).name("First Client").wallet(wallet).build();
 
 		given(clientRepository.findById(1L)).willReturn(Optional.of(client));
 

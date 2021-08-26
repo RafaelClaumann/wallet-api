@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,9 +30,6 @@ public class ClientService {
 		Optional<ClientEntity> client = clientRepository.findById(id);
 
 		if (client.isPresent()) {
-			if (Objects.isNull(client.get().getWallets())) {
-				client.get().setWallets(new ArrayList<>());
-			}
 			return client.get();
 		}
 
@@ -80,27 +76,15 @@ public class ClientService {
 
 	/**
 	 * @param id
-	 * @return true se algum wallet do cliente possuir pelo menos uma despesa em aberto(OPEN).
+	 * @return a wallet do cliente possuir pelo menos uma despesa em aberto(OPEN).
 	 */
 	private boolean checkClientOpenedExpensesBeforeDelete(final Long id) {
-		ClientEntity client = this.findClientById(id);
+		WalletEntity wallet = this.findClientById(id).getWallet();
 
-		List<Boolean> collect = client.getWallets().stream().map(this::checkWalletOpenedExpenses)
-				.collect(Collectors.toUnmodifiableList());
-
-		return collect.stream().anyMatch(bool -> bool.equals(Boolean.TRUE));
-	}
-
-	/**
-	 * @param wallet
-	 * @return true se o wallet possuir pelo menos uma despesa em aberto(OPEN).
-	 */
-	private boolean checkWalletOpenedExpenses(final WalletEntity wallet) {
-		if (Objects.isNull(wallet.getExpenses()) || wallet.getExpenses().isEmpty())
+		if(Objects.isNull(wallet) || Objects.isNull(wallet.getExpenses()) || wallet.getExpenses().isEmpty())
 			return false;
 
-		final boolean hasOpenedExpenses = wallet.getExpenses().stream()
-				.anyMatch(expense -> expense.getExpenseState().equals(ExpenseState.OPEN));
-		return hasOpenedExpenses;
+		return wallet.getExpenses().stream().anyMatch(expense -> expense.getExpenseState().equals(ExpenseState.OPEN));
 	}
+
 }

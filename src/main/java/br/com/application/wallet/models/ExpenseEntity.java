@@ -27,7 +27,7 @@ public class ExpenseEntity implements Serializable {
     private static final long serialVersionUID = 2717526289026820456L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String description;
     private BigDecimal value;

@@ -35,15 +35,9 @@ public class ClientWalletExpensesDTO {
 		this.clientName = client.getName();
 		this.walletId = walletId;
 
-		final WalletEntity wallet = getClientWalletById(client, walletId);
+		final WalletEntity wallet = client.getWallet();
 		this.walletDescription = wallet.getDescription();
 		this.expensesDtoList = turnWalletExpensesListToExpensesDTOList(wallet);
-	}
-
-	private WalletEntity getClientWalletById(final ClientEntity client, final Long walletId) {
-		final Optional<WalletEntity> first = client.getWallets().stream().filter(wallet1 -> wallet1.getId().equals(walletId))
-				.findFirst();
-		return first.orElseThrow(() -> new WalletNotFoundException("Carteira não encontrada, id: " + walletId));
 	}
 
 	private List<ExpenseDTO> turnWalletExpensesListToExpensesDTOList(final WalletEntity wallet) {

@@ -23,15 +23,10 @@ public class ClientController {
 
     @GetMapping("/{id_client}/wallets/{id_wallet}")
     public ResponseEntity<ClientWalletExpensesDTO> findClientWithWalletExpenses(
-            @PathVariable("id_client") final Long idClient, @PathVariable("id_wallet") final Long idWallet) {
+            @PathVariable("id_client") final Long idClient,
+            @PathVariable("id_wallet") final Long idWallet) {
         final ClientEntity client = clientService.findClientById(idClient);
         return ResponseEntity.ok(new ClientWalletExpensesDTO(client, idWallet));
-    }
-
-    @GetMapping("/{id_client}/wallets")
-    public ResponseEntity<ClientWalletsDTO> findClientWithWallets(@PathVariable("id_client") final Long idClient) {
-        final ClientEntity client = clientService.findClientById(idClient);
-        return ResponseEntity.ok(new ClientWalletsDTO(client));
     }
 
     @GetMapping("/{id_client}")

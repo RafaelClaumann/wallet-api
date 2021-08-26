@@ -5,7 +5,6 @@ import br.com.application.wallet.models.ClientEntity;
 import br.com.application.wallet.models.api.Data;
 import br.com.application.wallet.models.dto.ClientDTO;
 import br.com.application.wallet.models.dto.ClientWalletExpensesDTO;
-import br.com.application.wallet.models.dto.ClientWalletsDTO;
 import br.com.application.wallet.services.ClientService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +42,6 @@ class ClientEntityControllerTest {
 
 	private JacksonTester<ClientDTO> json;
 	private JacksonTester<List<ClientDTO>> jsonList;
-	private JacksonTester<ClientWalletsDTO> jsonClientWalletsDTO;
 	private JacksonTester<ClientWalletExpensesDTO> jsonClientWalletExpensesDTO;
 	private JacksonTester<Data<List<ClientDTO>>> jsonData;
 
@@ -124,19 +122,6 @@ class ClientEntityControllerTest {
 				.andReturn().getResponse();
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-	}
-
-	@Test
-	void shouldReturnClientWalletsListTest() throws Exception {
-		ClientEntity client = mockSingleClient(1l);
-
-		given(clientService.findClientById(any(Long.class))).willReturn(client);
-
-		MockHttpServletResponse response = mockMvc.perform(get("/wallet/v1/clients/{id_client}/wallets", "1"))
-				.andReturn().getResponse();
-
-		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-		assertThat(response.getContentAsString()).isEqualTo(jsonClientWalletsDTO.write(new ClientWalletsDTO(client)).getJson());
 	}
 
 	@Test

@@ -29,7 +29,10 @@ public class ClientForm {
 	private String telephoneNumber;
 
 	public ClientEntity convertFormToClient(ClientForm form) {
-		return ClientEntity.builder().name(form.getName()).cpf(form.getCpf()).telephoneNumber(form.getTelephoneNumber())
+		return ClientEntity.builder()
+				.name(form.getName())
+				.cpf(form.getCpf())
+				.telephoneNumber(form.getTelephoneNumber())
 				.build();
 	}
 }

@@ -21,7 +21,7 @@ public class ClientEntity implements Serializable {
 	private static final long serialVersionUID = 8607100025462907728L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	private String name;
 
@@ -29,21 +29,21 @@ public class ClientEntity implements Serializable {
 	private String cpf;
 	private String telephoneNumber;
 
-	@OneToMany
-	@JoinColumn(name = "client_id")
-	private List<WalletEntity> wallets = new ArrayList<>();
+
+	@OneToOne
+	private WalletEntity wallet;
 
 	public ClientEntity(String name, String cpf, String telephoneNumber) {
 		this.name = name;
 		this.cpf = cpf;
 		this.telephoneNumber = telephoneNumber;
-		this.wallets = new ArrayList<>();
+		this.wallet = new WalletEntity();
 	}
 
 	public ClientEntity(String name, String cpf, String telephoneNumber, WalletEntity wallet) {
 		this.name = name;
 		this.cpf = cpf;
 		this.telephoneNumber = telephoneNumber;
-		this.wallets = Arrays.asList(wallet);
+		this.wallet = wallet;
 	}
 }
